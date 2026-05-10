@@ -116,3 +116,5 @@ with check ((select auth.uid()) = user_id);
 create index if not exists budget_items_user_sort_idx on public.budget_items(user_id, sort_order);
 create index if not exists debt_items_user_sort_idx on public.debt_items(user_id, sort_order);
 create index if not exists wishlist_items_user_sort_idx on public.wishlist_items(user_id, sort_order);
+
+notify pgrst, 'reload schema';
