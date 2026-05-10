@@ -1,8 +1,8 @@
 import type {
-  BudgetItem,
-  DebtItem,
+  DashboardBudgetItem,
+  DashboardDebtItem,
+  DashboardWishlistItem,
   ForecastResult,
-  WishlistItem
 } from "@/lib/types";
 
 export function formatCurrency(value: number, currency = "INR") {
@@ -24,7 +24,7 @@ export function addMonths(date: Date, months: number) {
   return new Date(date.getFullYear(), date.getMonth() + months, 1);
 }
 
-export function calculateMonthlySavings(monthlySalary: number, budgetItems: BudgetItem[]) {
+export function calculateMonthlySavings(monthlySalary: number, budgetItems: DashboardBudgetItem[]) {
   const budgetTotal = budgetItems.reduce((sum, item) => sum + item.amount, 0);
   return {
     budgetTotal,
@@ -34,9 +34,9 @@ export function calculateMonthlySavings(monthlySalary: number, budgetItems: Budg
 
 export function buildForecast(params: {
   monthlySalary: number;
-  budgetItems: BudgetItem[];
-  debtItems: DebtItem[];
-  wishlistItems: WishlistItem[];
+  budgetItems: DashboardBudgetItem[];
+  debtItems: DashboardDebtItem[];
+  wishlistItems: DashboardWishlistItem[];
   startDate?: Date;
 }): ForecastResult {
   const { budgetTotal, monthlySavings } = calculateMonthlySavings(

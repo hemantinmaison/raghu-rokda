@@ -2,6 +2,50 @@ import { redirect } from "next/navigation";
 import { signOut } from "@/app/auth/actions";
 import { PlannerDashboard } from "@/components/planner-dashboard";
 import { createClient } from "@/lib/supabase/server";
+import type {
+  DashboardBudgetItem,
+  DashboardDebtItem,
+  DashboardProfile,
+  DashboardWishlistItem
+} from "@/lib/types";
+
+function toNumber(value: number | string | null | undefined) {
+  const numericValue = Number(value ?? 0);
+  return Number.isFinite(numericValue) ? numericValue : 0;
+}
+
+function normalizeProfile(profile: DashboardProfile | null): DashboardProfile {
+  return {
+    monthly_salary: toNumber(profile?.monthly_salary),
+    currency: profile?.currency ?? "INR"
+  };
+}
+
+function normalizeBudgetItem(item: DashboardBudgetItem): DashboardBudgetItem {
+  return {
+    ...item,
+    amount: toNumber(item.amount),
+    sort_order: toNumber(item.sort_order)
+  };
+}
+
+function normalizeDebtItem(item: DashboardDebtItem): DashboardDebtItem {
+  return {
+    ...item,
+    amount: toNumber(item.amount),
+    interest_rate: item.interest_rate === null ? null : toNumber(item.interest_rate),
+    tenure_months: item.tenure_months === null ? null : toNumber(item.tenure_months),
+    sort_order: toNumber(item.sort_order)
+  };
+}
+
+function normalizeWishlistItem(item: DashboardWishlistItem): DashboardWishlistItem {
+  return {
+    ...item,
+    amount: toNumber(item.amount),
+    sort_order: toNumber(item.sort_order)
+  };
+}
 
 export default async function Home() {
   const supabase = await createClient();
@@ -14,22 +58,25 @@ export default async function Home() {
   }
 
   const [profileResult, budgetResult, debtResult, wishlistResult] = await Promise.all([
-    supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle(),
-    supabase.from("budget_items").select("*").eq("user_id", user.id).order("sort_order"),
-    supabase.from("debt_items").select("*").eq("user_id", user.id).order("sort_order"),
-    supabase.from("wishlist_items").select("*").eq("user_id", user.id).order("sort_order")
+    supabase.from("profiles").select("monthly_salary,currency").eq("user_id", user.id).maybeSingle(),
+    supabase
+      .from("budget_items")
+      .select("id,name,amount,category,details,sort_order")
+      .eq("user_id", user.id)
+      .order("sort_order"),
+    supabase
+      .from("debt_items")
+      .select("id,name,amount,interest_rate,tenure_months,details,sort_order")
+      .eq("user_id", user.id)
+      .order("sort_order"),
+    supabase
+      .from("wishlist_items")
+      .select("id,name,amount,details,sort_order")
+      .eq("user_id", user.id)
+      .order("sort_order")
   ]);
 
-  const profile =
-    profileResult.data ??
-    ({
-      id: "local-profile",
-      user_id: user.id,
-      monthly_salary: 0,
-      currency: "INR",
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    } as const);
+  const profile = normalizeProfile(profileResult.data);
 
   return (
     <main className="min-h-screen bg-[#f7f8f3] text-[#171a1f]">
@@ -52,9 +99,9 @@ export default async function Home() {
       <PlannerDashboard
         profile={profile}
         userEmail={user.email ?? "Signed in"}
-        budgetItems={budgetResult.data ?? []}
-        debtItems={debtResult.data ?? []}
-        wishlistItems={wishlistResult.data ?? []}
+        budgetItems={(budgetResult.data ?? []).map(normalizeBudgetItem)}
+        debtItems={(debtResult.data ?? []).map(normalizeDebtItem)}
+        wishlistItems={(wishlistResult.data ?? []).map(normalizeWishlistItem)}
       />
     </main>
   );

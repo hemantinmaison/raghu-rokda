@@ -27,6 +27,7 @@ npm install
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
 4. Enable Supabase Auth providers:

@@ -80,25 +80,38 @@ alter table public.budget_items enable row level security;
 alter table public.debt_items enable row level security;
 alter table public.wishlist_items enable row level security;
 
+alter table public.profiles force row level security;
+alter table public.budget_items force row level security;
+alter table public.debt_items force row level security;
+alter table public.wishlist_items force row level security;
+
+drop policy if exists "profiles are private" on public.profiles;
 create policy "profiles are private"
 on public.profiles for all
-using (auth.uid() = user_id)
-with check (auth.uid() = user_id);
+to authenticated
+using ((select auth.uid()) = user_id)
+with check ((select auth.uid()) = user_id);
 
+drop policy if exists "budget items are private" on public.budget_items;
 create policy "budget items are private"
 on public.budget_items for all
-using (auth.uid() = user_id)
-with check (auth.uid() = user_id);
+to authenticated
+using ((select auth.uid()) = user_id)
+with check ((select auth.uid()) = user_id);
 
+drop policy if exists "debt items are private" on public.debt_items;
 create policy "debt items are private"
 on public.debt_items for all
-using (auth.uid() = user_id)
-with check (auth.uid() = user_id);
+to authenticated
+using ((select auth.uid()) = user_id)
+with check ((select auth.uid()) = user_id);
 
+drop policy if exists "wishlist items are private" on public.wishlist_items;
 create policy "wishlist items are private"
 on public.wishlist_items for all
-using (auth.uid() = user_id)
-with check (auth.uid() = user_id);
+to authenticated
+using ((select auth.uid()) = user_id)
+with check ((select auth.uid()) = user_id);
 
 create index if not exists budget_items_user_sort_idx on public.budget_items(user_id, sort_order);
 create index if not exists debt_items_user_sort_idx on public.debt_items(user_id, sort_order);

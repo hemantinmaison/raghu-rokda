@@ -1,14 +1,18 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import {
   budgetItemSchema,
   debtItemSchema,
+  plannerKindSchema,
   profileSchema,
+  uuidSchema,
   wishlistItemSchema
 } from "@/lib/validation";
 import type { PlannerKind } from "@/lib/types";
+import type { PostgrestError } from "@supabase/supabase-js";
 
 async function requireUser() {
   const supabase = await createClient();
@@ -29,9 +33,18 @@ function emptyToNull(value: FormDataEntryValue | null) {
   return text.length ? text : null;
 }
 
-async function nextSortOrder(table: "budget_items" | "debt_items" | "wishlist_items", userId: string) {
-  const { supabase } = await requireUser();
-  const { data } = await supabase
+function throwIfError(error: PostgrestError | null) {
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
+async function nextSortOrder(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  table: "budget_items" | "debt_items" | "wishlist_items",
+  userId: string
+) {
+  const { data, error } = await supabase
     .from(table)
     .select("sort_order")
     .eq("user_id", userId)
@@ -39,6 +52,7 @@ async function nextSortOrder(table: "budget_items" | "debt_items" | "wishlist_it
     .limit(1)
     .maybeSingle();
 
+  throwIfError(error);
   return (data?.sort_order ?? -1) + 1;
 }
 
@@ -48,7 +62,7 @@ export async function updateSalary(formData: FormData) {
     monthly_salary: formData.get("monthly_salary")
   });
 
-  await supabase.from("profiles").upsert(
+  const { error } = await supabase.from("profiles").upsert(
     {
       user_id: user.id,
       monthly_salary: parsed.monthly_salary,
@@ -57,6 +71,7 @@ export async function updateSalary(formData: FormData) {
     { onConflict: "user_id" }
   );
 
+  throwIfError(error);
   revalidatePath("/");
 }
 
@@ -69,13 +84,14 @@ export async function createBudgetItem(formData: FormData) {
     details: emptyToNull(formData.get("details"))
   });
 
-  await supabase.from("budget_items").insert({
+  const { error } = await supabase.from("budget_items").insert({
     ...parsed,
     details: parsed.details ?? null,
     user_id: user.id,
-    sort_order: await nextSortOrder("budget_items", user.id)
+    sort_order: await nextSortOrder(supabase, "budget_items", user.id)
   });
 
+  throwIfError(error);
   revalidatePath("/");
 }
 
@@ -89,13 +105,14 @@ export async function createDebtItem(formData: FormData) {
     details: emptyToNull(formData.get("details"))
   });
 
-  await supabase.from("debt_items").insert({
+  const { error } = await supabase.from("debt_items").insert({
     ...parsed,
     details: parsed.details ?? null,
     user_id: user.id,
-    sort_order: await nextSortOrder("debt_items", user.id)
+    sort_order: await nextSortOrder(supabase, "debt_items", user.id)
   });
 
+  throwIfError(error);
   revalidatePath("/");
 }
 
@@ -107,32 +124,39 @@ export async function createWishlistItem(formData: FormData) {
     details: emptyToNull(formData.get("details"))
   });
 
-  await supabase.from("wishlist_items").insert({
+  const { error } = await supabase.from("wishlist_items").insert({
     ...parsed,
     details: parsed.details ?? null,
     user_id: user.id,
-    sort_order: await nextSortOrder("wishlist_items", user.id)
+    sort_order: await nextSortOrder(supabase, "wishlist_items", user.id)
   });
 
+  throwIfError(error);
   revalidatePath("/");
 }
 
 export async function deleteItem(kind: PlannerKind, id: string) {
   const { supabase, user } = await requireUser();
-  const table = tableForKind(kind);
-  await supabase.from(table).delete().eq("id", id).eq("user_id", user.id);
+  const table = tableForKind(plannerKindSchema.parse(kind));
+  const itemId = uuidSchema.parse(id);
+  const { error } = await supabase.from(table).delete().eq("id", itemId).eq("user_id", user.id);
+
+  throwIfError(error);
   revalidatePath("/");
 }
 
 export async function reorderItems(kind: PlannerKind, orderedIds: string[]) {
   const { supabase, user } = await requireUser();
-  const table = tableForKind(kind);
+  const parsedKind = plannerKindSchema.parse(kind);
+  const parsedIds = z.array(uuidSchema).parse(orderedIds);
+  const table = tableForKind(parsedKind);
 
-  await Promise.all(
-    orderedIds.map((id, index) =>
+  const results = await Promise.all(
+    parsedIds.map((id, index) =>
       supabase.from(table).update({ sort_order: index }).eq("id", id).eq("user_id", user.id)
     )
   );
+  results.forEach(({ error }) => throwIfError(error));
 
   revalidatePath("/");
 }

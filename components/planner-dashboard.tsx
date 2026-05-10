@@ -36,7 +36,13 @@ import {
   updateSalary
 } from "@/app/actions/planner";
 import { buildForecast, formatCurrency, formatMonthYear } from "@/lib/finance";
-import type { BudgetItem, DebtItem, PlannerKind, Profile, WishlistItem } from "@/lib/types";
+import type {
+  DashboardBudgetItem,
+  DashboardDebtItem,
+  DashboardProfile,
+  DashboardWishlistItem,
+  PlannerKind
+} from "@/lib/types";
 
 const categories = [
   "Rent",
@@ -52,11 +58,11 @@ const categories = [
 ];
 
 type DashboardProps = {
-  profile: Profile;
+  profile: DashboardProfile;
   userEmail: string;
-  budgetItems: BudgetItem[];
-  debtItems: DebtItem[];
-  wishlistItems: WishlistItem[];
+  budgetItems: DashboardBudgetItem[];
+  debtItems: DashboardDebtItem[];
+  wishlistItems: DashboardWishlistItem[];
 };
 
 export function PlannerDashboard({

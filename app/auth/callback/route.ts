@@ -4,12 +4,18 @@ import { createClient } from "@/lib/supabase/server";
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get("code");
-  const next = requestUrl.searchParams.get("next") ?? "/";
+  const next = requestUrl.searchParams.get("next");
+  const redirectPath = next?.startsWith("/") && !next.startsWith("//") ? next : "/";
 
   if (code) {
     const supabase = await createClient();
-    await supabase.auth.exchangeCodeForSession(code);
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+
+    if (error) {
+      const message = encodeURIComponent(error.message);
+      return NextResponse.redirect(new URL(`/login?message=${message}`, requestUrl.origin));
+    }
   }
 
-  return NextResponse.redirect(new URL(next, requestUrl.origin));
+  return NextResponse.redirect(new URL(redirectPath, requestUrl.origin));
 }

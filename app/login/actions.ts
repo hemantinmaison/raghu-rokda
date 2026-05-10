@@ -4,8 +4,14 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
+type RedirectTarget = Parameters<typeof redirect>[0];
+
+async function getRequestOrigin() {
+  return (await headers()).get("origin") ?? process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+}
+
 export async function signInWithPassword(formData: FormData) {
-  const email = String(formData.get("email") ?? "");
+  const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
   const supabase = await createClient();
 
@@ -18,15 +24,16 @@ export async function signInWithPassword(formData: FormData) {
 }
 
 export async function signUpWithPassword(formData: FormData) {
-  const email = String(formData.get("email") ?? "");
+  const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
   const supabase = await createClient();
+  const origin = await getRequestOrigin();
 
   const { error } = await supabase.auth.signUp({
     email,
     password,
     options: {
-      emailRedirectTo: `${(await headers()).get("origin")}/auth/callback`
+      emailRedirectTo: `${origin}/auth/callback`
     }
   });
 
@@ -38,7 +45,7 @@ export async function signUpWithPassword(formData: FormData) {
 }
 
 export async function signInWithGoogle() {
-  const origin = (await headers()).get("origin");
+  const origin = await getRequestOrigin();
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
@@ -51,5 +58,5 @@ export async function signInWithGoogle() {
     redirect(`/login?message=${encodeURIComponent(error?.message ?? "Google sign-in failed")}`);
   }
 
-  redirect(data.url);
+  redirect(data.url as RedirectTarget);
 }

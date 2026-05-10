@@ -1,5 +1,8 @@
 import { z } from "zod";
 
+export const uuidSchema = z.string().uuid();
+export const plannerKindSchema = z.enum(["budget", "debt", "wishlist"]);
+
 const money = z.coerce.number().finite().positive("Amount must be greater than zero");
 const optionalNumber = z.preprocess(
   (value) => (value === "" || value === null || value === undefined ? null : value),
