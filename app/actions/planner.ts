@@ -39,23 +39,6 @@ function throwIfError(error: PostgrestError | null) {
   }
 }
 
-async function nextSortOrder(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  table: "budget_items" | "debt_items" | "wishlist_items",
-  userId: string
-) {
-  const { data, error } = await supabase
-    .from(table)
-    .select("sort_order")
-    .eq("user_id", userId)
-    .order("sort_order", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  throwIfError(error);
-  return (data?.sort_order ?? -1) + 1;
-}
-
 export async function updateSalary(formData: FormData) {
   const { supabase, user } = await requireUser();
   const parsed = profileSchema.parse({
@@ -87,8 +70,7 @@ export async function createBudgetItem(formData: FormData) {
   const { error } = await supabase.from("budget_items").insert({
     ...parsed,
     details: parsed.details ?? null,
-    user_id: user.id,
-    sort_order: await nextSortOrder(supabase, "budget_items", user.id)
+    user_id: user.id
   });
 
   throwIfError(error);
@@ -108,8 +90,7 @@ export async function createDebtItem(formData: FormData) {
   const { error } = await supabase.from("debt_items").insert({
     ...parsed,
     details: parsed.details ?? null,
-    user_id: user.id,
-    sort_order: await nextSortOrder(supabase, "debt_items", user.id)
+    user_id: user.id
   });
 
   throwIfError(error);
@@ -127,8 +108,7 @@ export async function createWishlistItem(formData: FormData) {
   const { error } = await supabase.from("wishlist_items").insert({
     ...parsed,
     details: parsed.details ?? null,
-    user_id: user.id,
-    sort_order: await nextSortOrder(supabase, "wishlist_items", user.id)
+    user_id: user.id
   });
 
   throwIfError(error);

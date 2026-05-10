@@ -1,5 +1,9 @@
 create extension if not exists "pgcrypto";
 
+create sequence if not exists public.budget_items_sort_order_seq;
+create sequence if not exists public.debt_items_sort_order_seq;
+create sequence if not exists public.wishlist_items_sort_order_seq;
+
 create table if not exists public.profiles (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null unique references auth.users(id) on delete cascade,
@@ -16,7 +20,7 @@ create table if not exists public.budget_items (
   amount numeric(12, 2) not null check (amount > 0),
   category text not null check (char_length(trim(category)) > 0),
   details text,
-  sort_order integer not null default 0,
+  sort_order integer not null default nextval('public.budget_items_sort_order_seq'),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -29,7 +33,7 @@ create table if not exists public.debt_items (
   interest_rate numeric(7, 3) check (interest_rate is null or interest_rate >= 0),
   tenure_months integer check (tenure_months is null or tenure_months > 0),
   details text,
-  sort_order integer not null default 0,
+  sort_order integer not null default nextval('public.debt_items_sort_order_seq'),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -40,7 +44,7 @@ create table if not exists public.wishlist_items (
   name text not null check (char_length(trim(name)) > 0),
   amount numeric(12, 2) not null check (amount > 0),
   details text,
-  sort_order integer not null default 0,
+  sort_order integer not null default nextval('public.wishlist_items_sort_order_seq'),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -116,5 +120,17 @@ with check ((select auth.uid()) = user_id);
 create index if not exists budget_items_user_sort_idx on public.budget_items(user_id, sort_order);
 create index if not exists debt_items_user_sort_idx on public.debt_items(user_id, sort_order);
 create index if not exists wishlist_items_user_sort_idx on public.wishlist_items(user_id, sort_order);
+
+alter table public.budget_items alter column sort_order set default nextval('public.budget_items_sort_order_seq');
+alter table public.debt_items alter column sort_order set default nextval('public.debt_items_sort_order_seq');
+alter table public.wishlist_items alter column sort_order set default nextval('public.wishlist_items_sort_order_seq');
+
+select setval('public.budget_items_sort_order_seq', coalesce((select max(sort_order) + 1 from public.budget_items), 1), false);
+select setval('public.debt_items_sort_order_seq', coalesce((select max(sort_order) + 1 from public.debt_items), 1), false);
+select setval('public.wishlist_items_sort_order_seq', coalesce((select max(sort_order) + 1 from public.wishlist_items), 1), false);
+
+grant usage on sequence public.budget_items_sort_order_seq to authenticated;
+grant usage on sequence public.debt_items_sort_order_seq to authenticated;
+grant usage on sequence public.wishlist_items_sort_order_seq to authenticated;
 
 notify pgrst, 'reload schema';

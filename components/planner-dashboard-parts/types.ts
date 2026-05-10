@@ -5,4 +5,4 @@ export type TableHeader = {
   icon: ReactNode;
 };
 
-export type CreateAction = (formData: FormData) => void | Promise<void>;
+export type CreateAction = (formData: FormData) => Promise<void>;

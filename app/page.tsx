@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { signOut } from "@/app/auth/actions";
 import { PlannerDashboard } from "@/components/planner-dashboard";
 import { createClient } from "@/lib/supabase/server";
+import type { ReactNode } from "react";
+import type { PostgrestError } from "@supabase/supabase-js";
 import type {
   DashboardBudgetItem,
   DashboardDebtItem,
@@ -47,37 +49,11 @@ function normalizeWishlistItem(item: DashboardWishlistItem): DashboardWishlistIt
   };
 }
 
-export default async function Home() {
-  const supabase = await createClient();
-  const {
-    data: { user }
-  } = await supabase.auth.getUser();
+function firstQueryError(errors: Array<PostgrestError | null>) {
+  return errors.find(Boolean) ?? null;
+}
 
-  if (!user) {
-    redirect("/login");
-  }
-
-  const [profileResult, budgetResult, debtResult, wishlistResult] = await Promise.all([
-    supabase.from("profiles").select("monthly_salary,currency").eq("user_id", user.id).maybeSingle(),
-    supabase
-      .from("budget_items")
-      .select("id,name,amount,category,details,sort_order")
-      .eq("user_id", user.id)
-      .order("sort_order"),
-    supabase
-      .from("debt_items")
-      .select("id,name,amount,interest_rate,tenure_months,details,sort_order")
-      .eq("user_id", user.id)
-      .order("sort_order"),
-    supabase
-      .from("wishlist_items")
-      .select("id,name,amount,details,sort_order")
-      .eq("user_id", user.id)
-      .order("sort_order")
-  ]);
-
-  const profile = normalizeProfile(profileResult.data);
-
+function AppShell({ children }: { children: ReactNode }) {
   return (
     <main className="min-h-screen bg-[#f7f8f3] text-[#171a1f]">
       <header className="border-b border-[#dde2dc] bg-white">
@@ -95,7 +71,76 @@ export default async function Home() {
           </form>
         </div>
       </header>
+      {children}
+    </main>
+  );
+}
 
+function DashboardLoadError({ message }: { message: string }) {
+  return (
+    <section className="mx-auto max-w-3xl px-5 py-8">
+      <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-[#7a271a]">
+        <h2 className="text-lg font-semibold">Could not load planner data</h2>
+        <p className="mt-2 text-sm leading-6">{message}</p>
+        <p className="mt-3 text-sm leading-6">
+          Check that `.env.local` points to the right Supabase project, run `supabase/schema.sql`,
+          and confirm the tables exist in the public schema.
+        </p>
+      </div>
+    </section>
+  );
+}
+
+export default async function Home() {
+  const supabase = await createClient();
+  const {
+    data: { user }
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const [profileResult, budgetResult, debtResult, wishlistResult] = await Promise.all([
+    supabase.from("profiles").select("monthly_salary,currency").eq("user_id", user.id).maybeSingle(),
+    supabase
+      .from("budget_items")
+      .select("id,name,amount,category,details,sort_order")
+      .eq("user_id", user.id)
+      .order("sort_order")
+      .order("id"),
+    supabase
+      .from("debt_items")
+      .select("id,name,amount,interest_rate,tenure_months,details,sort_order")
+      .eq("user_id", user.id)
+      .order("sort_order")
+      .order("id"),
+    supabase
+      .from("wishlist_items")
+      .select("id,name,amount,details,sort_order")
+      .eq("user_id", user.id)
+      .order("sort_order")
+      .order("id")
+  ]);
+  const loadError = firstQueryError([
+    profileResult.error,
+    budgetResult.error,
+    debtResult.error,
+    wishlistResult.error
+  ]);
+
+  if (loadError) {
+    return (
+      <AppShell>
+        <DashboardLoadError message={loadError.message} />
+      </AppShell>
+    );
+  }
+
+  const profile = normalizeProfile(profileResult.data);
+
+  return (
+    <AppShell>
       <PlannerDashboard
         profile={profile}
         userEmail={user.email ?? "Signed in"}
@@ -103,6 +148,6 @@ export default async function Home() {
         debtItems={(debtResult.data ?? []).map(normalizeDebtItem)}
         wishlistItems={(wishlistResult.data ?? []).map(normalizeWishlistItem)}
       />
-    </main>
+    </AppShell>
   );
 }

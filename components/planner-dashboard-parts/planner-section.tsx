@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import type { ReactNode } from "react";
+import type { FormEvent, ReactNode } from "react";
 import { GripVertical, Plus, Save, SlidersHorizontal, Trash2, X } from "lucide-react";
 import {
   closestCenter,
@@ -46,6 +46,8 @@ export function PlannerSection<T extends { id: string; amount: number }>({
   renderCells: (item: T) => ReactNode[];
 }) {
   const [isAdding, setIsAdding] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
   const [, startTransition] = useTransition();
   const formId = `new-${kind}-item-form`;
   const sensors = useSensors(
@@ -64,6 +66,22 @@ export function PlannerSection<T extends { id: string; amount: number }>({
     const orderedItems = arrayMove(items, oldIndex, newIndex);
     onItemsChange(orderedItems);
     startTransition(() => reorderItems(kind, orderedItems.map((item) => item.id)));
+  }
+
+  async function handleCreateSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setSubmitError(null);
+    setIsSaving(true);
+
+    try {
+      await createAction(new FormData(event.currentTarget));
+      event.currentTarget.reset();
+      setIsAdding(false);
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : "Could not save item.");
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   return (
@@ -85,7 +103,7 @@ export function PlannerSection<T extends { id: string; amount: number }>({
         </button>
       </div>
 
-      {isAdding ? <form id={formId} action={createAction} onSubmit={() => setIsAdding(false)} /> : null}
+      {isAdding ? <form id={formId} onSubmit={handleCreateSubmit} /> : null}
 
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={items.map((item) => item.id)} strategy={verticalListSortingStrategy}>
@@ -115,11 +133,19 @@ export function PlannerSection<T extends { id: string; amount: number }>({
                 {isAdding ? (
                   <NewItemEditRow
                     cells={renderNewCells(formId)}
+                    error={submitError}
                     formId={formId}
+                    isSaving={isSaving}
                     onCancel={() => setIsAdding(false)}
                   />
                 ) : (
-                  <NewItemButtonRow columnCount={headers.length} onClick={() => setIsAdding(true)} />
+                  <NewItemButtonRow
+                    columnCount={headers.length}
+                    onClick={() => {
+                      setSubmitError(null);
+                      setIsAdding(true);
+                    }}
+                  />
                 )}
               </tbody>
             </table>
@@ -206,43 +232,59 @@ function NewItemButtonRow({ columnCount, onClick }: { columnCount: number; onCli
 
 function NewItemEditRow({
   cells,
+  error,
   formId,
+  isSaving,
   onCancel
 }: {
   cells: ReactNode[];
+  error: string | null;
   formId: string;
+  isSaving: boolean;
   onCancel: () => void;
 }) {
   return (
-    <tr className="h-14 border-b border-[#efeeeb] bg-white">
-      <td className="px-2 py-2 align-middle text-[#b8b3ad]">
-        <Plus className="mx-auto size-5" />
-      </td>
-      {cells.map((cell, index) => (
-        <td key={index} className="max-w-[340px] border-r border-[#efeeeb] p-0 align-middle last:border-r-0">
-          {cell}
+    <>
+      <tr className="h-14 border-b border-[#efeeeb] bg-white">
+        <td className="px-2 py-2 align-middle text-[#b8b3ad]">
+          <Plus className="mx-auto size-5" />
         </td>
-      ))}
-      <td className="px-2 py-2 align-middle">
-        <div className="flex items-center justify-end gap-1">
-          <button
-            type="submit"
-            form={formId}
-            className="focus-ring rounded p-1.5 text-teal-700 hover:bg-[#eef4f1]"
-            aria-label="Save new item"
-          >
-            <Save className="size-4" />
-          </button>
-          <button
-            type="button"
-            onClick={onCancel}
-            className="focus-ring rounded p-1.5 text-[#8a8580] hover:bg-[#f3f2ef]"
-            aria-label="Cancel new item"
-          >
-            <X className="size-4" />
-          </button>
-        </div>
-      </td>
-    </tr>
+        {cells.map((cell, index) => (
+          <td key={index} className="max-w-[340px] border-r border-[#efeeeb] p-0 align-middle last:border-r-0">
+            {cell}
+          </td>
+        ))}
+        <td className="px-2 py-2 align-middle">
+          <div className="flex items-center justify-end gap-1">
+            <button
+              type="submit"
+              form={formId}
+              disabled={isSaving}
+              className="focus-ring rounded p-1.5 text-teal-700 hover:bg-[#eef4f1] disabled:opacity-50"
+              aria-label="Save new item"
+            >
+              <Save className="size-4" />
+            </button>
+            <button
+              type="button"
+              onClick={onCancel}
+              disabled={isSaving}
+              className="focus-ring rounded p-1.5 text-[#8a8580] hover:bg-[#f3f2ef] disabled:opacity-50"
+              aria-label="Cancel new item"
+            >
+              <X className="size-4" />
+            </button>
+          </div>
+        </td>
+      </tr>
+      {error ? (
+        <tr className="border-b border-[#efeeeb] bg-red-50">
+          <td />
+          <td colSpan={cells.length + 1} className="px-4 py-2 text-sm text-[#b42318]">
+            {error}
+          </td>
+        </tr>
+      ) : null}
+    </>
   );
 }
