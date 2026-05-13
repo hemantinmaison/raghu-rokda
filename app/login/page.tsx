@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Chrome, LockKeyhole, Mail } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
@@ -6,6 +7,12 @@ import {
   signInWithPassword,
   signUpWithPassword
 } from "@/app/login/actions";
+
+export const metadata: Metadata = {
+  title: "Sign in — Finance Planner",
+  description: "Sign in to your personal finance planner.",
+  robots: { index: false, follow: false }
+};
 
 export default async function LoginPage({
   searchParams

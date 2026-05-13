@@ -12,7 +12,7 @@ type CookieToSet = {
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
 
-  const supabase = createServerClient<Database, "public", Database["public"]>(
+  const supabase = createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
@@ -33,8 +33,10 @@ export async function updateSession(request: NextRequest) {
 
   try {
     await supabase.auth.getUser();
-  } catch {
-    // Let the route render. Pages/actions surface configuration and network issues more clearly.
+  } catch (error) {
+    // Don't fail the request — auth state will be re-checked in server components and
+    // actions where it can be surfaced properly. Log so failures aren't invisible.
+    console.error("[supabase middleware] failed to refresh session", error);
   }
 
   return response;

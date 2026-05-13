@@ -1,15 +1,4 @@
-const categories = [
-  "Rent",
-  "Groceries",
-  "Transport",
-  "Utilities",
-  "Insurance",
-  "Healthcare",
-  "Education",
-  "Subscriptions",
-  "Family",
-  "Other"
-];
+import { BUDGET_CATEGORY_SUGGESTIONS } from "@/lib/validation";
 
 const inputClass =
   "focus-ring h-14 w-full min-w-0 border-0 bg-transparent px-4 py-3 text-[#2f2f2f] placeholder:text-[#b8b3ad] hover:bg-[#fbfaf8] focus:bg-white";
@@ -48,7 +37,7 @@ export function NewCategoryInput({ formId }: { formId: string }) {
         required
       />
       <datalist id="budget-categories">
-        {categories.map((category) => (
+        {BUDGET_CATEGORY_SUGGESTIONS.map((category) => (
           <option key={category} value={category} />
         ))}
       </datalist>

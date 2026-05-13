@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { z } from "zod";
+import { z, ZodError, type ZodSchema } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import {
   budgetItemSchema,
@@ -13,6 +13,23 @@ import {
 } from "@/lib/validation";
 import type { PlannerKind } from "@/lib/types";
 import type { PostgrestError } from "@supabase/supabase-js";
+
+function parseOrThrow<T>(schema: ZodSchema<T>, input: unknown): T {
+  try {
+    return schema.parse(input);
+  } catch (error) {
+    if (error instanceof ZodError) {
+      const message = error.issues
+        .map((issue) => {
+          const path = issue.path.join(".");
+          return path ? `${path}: ${issue.message}` : issue.message;
+        })
+        .join("; ");
+      throw new Error(message);
+    }
+    throw error;
+  }
+}
 
 async function requireUser() {
   const supabase = await createClient();
@@ -41,7 +58,7 @@ function throwIfError(error: PostgrestError | null) {
 
 export async function updateSalary(formData: FormData) {
   const { supabase, user } = await requireUser();
-  const parsed = profileSchema.parse({
+  const parsed = parseOrThrow(profileSchema, {
     monthly_salary: formData.get("monthly_salary")
   });
 
@@ -60,7 +77,7 @@ export async function updateSalary(formData: FormData) {
 
 export async function createBudgetItem(formData: FormData) {
   const { supabase, user } = await requireUser();
-  const parsed = budgetItemSchema.parse({
+  const parsed = parseOrThrow(budgetItemSchema, {
     name: formData.get("name"),
     amount: formData.get("amount"),
     category: formData.get("category"),
@@ -79,7 +96,7 @@ export async function createBudgetItem(formData: FormData) {
 
 export async function createDebtItem(formData: FormData) {
   const { supabase, user } = await requireUser();
-  const parsed = debtItemSchema.parse({
+  const parsed = parseOrThrow(debtItemSchema, {
     name: formData.get("name"),
     amount: formData.get("amount"),
     interest_rate: formData.get("interest_rate"),
@@ -88,7 +105,10 @@ export async function createDebtItem(formData: FormData) {
   });
 
   const { error } = await supabase.from("debt_items").insert({
-    ...parsed,
+    name: parsed.name,
+    amount: parsed.amount,
+    interest_rate: parsed.interest_rate as number | null,
+    tenure_months: parsed.tenure_months as number | null,
     details: parsed.details ?? null,
     user_id: user.id
   });
@@ -99,7 +119,7 @@ export async function createDebtItem(formData: FormData) {
 
 export async function createWishlistItem(formData: FormData) {
   const { supabase, user } = await requireUser();
-  const parsed = wishlistItemSchema.parse({
+  const parsed = parseOrThrow(wishlistItemSchema, {
     name: formData.get("name"),
     amount: formData.get("amount"),
     details: emptyToNull(formData.get("details"))
@@ -117,8 +137,8 @@ export async function createWishlistItem(formData: FormData) {
 
 export async function deleteItem(kind: PlannerKind, id: string) {
   const { supabase, user } = await requireUser();
-  const table = tableForKind(plannerKindSchema.parse(kind));
-  const itemId = uuidSchema.parse(id);
+  const table = tableForKind(parseOrThrow(plannerKindSchema, kind));
+  const itemId = parseOrThrow(uuidSchema, id);
   const { error } = await supabase.from(table).delete().eq("id", itemId).eq("user_id", user.id);
 
   throwIfError(error);
@@ -126,17 +146,18 @@ export async function deleteItem(kind: PlannerKind, id: string) {
 }
 
 export async function reorderItems(kind: PlannerKind, orderedIds: string[]) {
-  const { supabase, user } = await requireUser();
-  const parsedKind = plannerKindSchema.parse(kind);
-  const parsedIds = z.array(uuidSchema).parse(orderedIds);
-  const table = tableForKind(parsedKind);
+  const { supabase } = await requireUser();
+  const parsedKind = parseOrThrow(plannerKindSchema, kind);
+  const parsedIds = parseOrThrow(z.array(uuidSchema), orderedIds);
+  if (parsedIds.length === 0) return;
 
-  const results = await Promise.all(
-    parsedIds.map((id, index) =>
-      supabase.from(table).update({ sort_order: index }).eq("id", id).eq("user_id", user.id)
-    )
-  );
-  results.forEach(({ error }) => throwIfError(error));
+  const { error } = await supabase.rpc("reorder_items", {
+    p_kind: parsedKind,
+    p_ids: parsedIds
+  });
+  if (error) {
+    throw new Error(error.message);
+  }
 
   revalidatePath("/");
 }

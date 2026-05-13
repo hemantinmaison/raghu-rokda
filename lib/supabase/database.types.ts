@@ -143,7 +143,10 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      reorder_items: {
+        Args: { p_kind: string; p_ids: string[] };
+        Returns: undefined;
+      };
     };
     Enums: {
       [_ in never]: never;
