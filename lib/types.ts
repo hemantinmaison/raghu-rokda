@@ -32,4 +32,6 @@ export type ForecastResult = {
   monthlySavings: number;
   debtForecasts: ForecastEntry[];
   wishlistForecasts: ForecastEntry[];
+  debtForecastById: Map<string, ForecastEntry>;
+  wishlistForecastById: Map<string, ForecastEntry>;
 };

@@ -14,10 +14,10 @@ export default function Error({
   }, [error]);
 
   return (
-    <main className="min-h-screen bg-[#f7f8f3] px-5 py-12 text-[#171a1f]">
+    <main className="min-h-screen bg-canvas px-5 py-12 text-ink-900">
       <section className="mx-auto max-w-xl rounded-lg border border-red-200 bg-white p-6 shadow-sm">
         <h1 className="text-2xl font-semibold">Something went wrong</h1>
-        <p className="mt-2 text-sm leading-6 text-[#626a73]">
+        <p className="mt-2 text-sm leading-6 text-ink-500">
           We hit an unexpected error. You can try again, or refresh the page.
         </p>
         <button

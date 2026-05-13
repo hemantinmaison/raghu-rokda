@@ -31,7 +31,7 @@ export default async function LoginPage({
   const { message } = await searchParams;
 
   return (
-    <main className="min-h-screen bg-[#f7f8f3] px-5 py-8 text-[#171a1f]">
+    <main className="min-h-screen bg-canvas px-5 py-8 text-ink-900">
       <section className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-6xl items-center">
         <div className="grid w-full gap-8 lg:grid-cols-[1fr_460px] lg:items-center">
           <div className="max-w-2xl">
@@ -41,16 +41,16 @@ export default async function LoginPage({
             <h1 className="text-4xl font-semibold leading-tight md:text-6xl">
               Budget, clear debt, then plan what you want next.
             </h1>
-            <p className="mt-5 max-w-xl text-lg leading-8 text-[#626a73]">
+            <p className="mt-5 max-w-xl text-lg leading-8 text-ink-500">
               A private planner for salary, monthly expenses, debt payoff, and wishlist goals.
               Your future AI insights can plug into the same clean data model later.
             </p>
           </div>
 
-          <div className="rounded-lg border border-[#dde2dc] bg-white p-5 shadow-sm">
+          <div className="rounded-lg border border-line bg-white p-5 shadow-sm">
             <div className="mb-5">
               <h2 className="text-2xl font-semibold">Sign in</h2>
-              <p className="mt-1 text-sm text-[#626a73]">Use email or Google to continue.</p>
+              <p className="mt-1 text-sm text-ink-500">Use email or Google to continue.</p>
             </div>
 
             {message ? (
@@ -63,9 +63,9 @@ export default async function LoginPage({
               <label className="grid gap-1 text-sm font-medium">
                 Email
                 <span className="relative">
-                  <Mail className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#626a73]" />
+                  <Mail className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ink-500" />
                   <input
-                    className="focus-ring w-full rounded-md border border-[#dde2dc] px-9 py-3"
+                    className="focus-ring w-full rounded-md border border-line px-9 py-3"
                     name="email"
                     type="email"
                     autoComplete="email"
@@ -76,9 +76,9 @@ export default async function LoginPage({
               <label className="grid gap-1 text-sm font-medium">
                 Password
                 <span className="relative">
-                  <LockKeyhole className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#626a73]" />
+                  <LockKeyhole className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ink-500" />
                   <input
-                    className="focus-ring w-full rounded-md border border-[#dde2dc] px-9 py-3"
+                    className="focus-ring w-full rounded-md border border-line px-9 py-3"
                     name="password"
                     type="password"
                     autoComplete="current-password"
@@ -92,10 +92,10 @@ export default async function LoginPage({
               </button>
             </form>
 
-            <form action={signUpWithPassword} className="mt-3 grid gap-3 border-t border-[#dde2dc] pt-4">
+            <form action={signUpWithPassword} className="mt-3 grid gap-3 border-t border-line pt-4">
               <p className="text-sm font-medium">Create account with email</p>
               <input
-                className="focus-ring rounded-md border border-[#dde2dc] px-3 py-3"
+                className="focus-ring rounded-md border border-line px-3 py-3"
                 name="email"
                 type="email"
                 placeholder="you@example.com"
@@ -103,7 +103,7 @@ export default async function LoginPage({
                 required
               />
               <input
-                className="focus-ring rounded-md border border-[#dde2dc] px-3 py-3"
+                className="focus-ring rounded-md border border-line px-3 py-3"
                 name="password"
                 type="password"
                 placeholder="Minimum 6 characters"
@@ -111,13 +111,13 @@ export default async function LoginPage({
                 minLength={6}
                 required
               />
-              <button className="focus-ring rounded-md border border-[#dde2dc] px-4 py-3 font-semibold hover:bg-[#f7f8f3]">
+              <button className="focus-ring rounded-md border border-line px-4 py-3 font-semibold hover:bg-canvas">
                 Create account
               </button>
             </form>
 
             <form action={signInWithGoogle} className="mt-3">
-              <button className="focus-ring flex w-full items-center justify-center gap-2 rounded-md border border-[#dde2dc] px-4 py-3 font-semibold hover:bg-[#f7f8f3]">
+              <button className="focus-ring flex w-full items-center justify-center gap-2 rounded-md border border-line px-4 py-3 font-semibold hover:bg-canvas">
                 <Chrome className="size-4" />
                 Continue with Google
               </button>

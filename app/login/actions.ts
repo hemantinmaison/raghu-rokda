@@ -26,61 +26,56 @@ function parseCredentials(formData: FormData) {
     password: formData.get("password")
   });
   if (!parsed.success) {
-    const first = parsed.error.issues[0]?.message ?? "Invalid email or password.";
-    loginRedirect(first);
+    loginRedirect(parsed.error.issues[0]?.message ?? "Invalid email or password.");
   }
   return parsed.data;
 }
 
-async function getRequestOrigin() {
-  return (await headers()).get("origin") ?? process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+// Resolve the site origin for OAuth callbacks. Prefer the configured
+// NEXT_PUBLIC_SITE_URL (production), fall back to the proxy-aware Host header
+// (local dev), and finally to localhost.
+async function getSiteOrigin() {
+  if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL;
+  const headerList = await headers();
+  const host = headerList.get("x-forwarded-host") ?? headerList.get("host");
+  if (host) {
+    const proto = headerList.get("x-forwarded-proto") ?? "https";
+    return `${proto}://${host}`;
+  }
+  return "http://localhost:3000";
 }
 
 export async function signInWithPassword(formData: FormData) {
   const { email, password } = parseCredentials(formData);
   const supabase = await createClient();
-
   const { error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) {
-    loginRedirect(GENERIC_AUTH_ERROR);
-  }
-
+  if (error) loginRedirect(GENERIC_AUTH_ERROR);
   redirect("/");
 }
 
 export async function signUpWithPassword(formData: FormData) {
   const { email, password } = parseCredentials(formData);
   const supabase = await createClient();
-  const origin = await getRequestOrigin();
+  const origin = await getSiteOrigin();
 
   const { error } = await supabase.auth.signUp({
     email,
     password,
-    options: {
-      emailRedirectTo: `${origin}/auth/callback`
-    }
+    options: { emailRedirectTo: `${origin}/auth/callback` }
   });
 
-  if (error) {
-    loginRedirect(GENERIC_SIGNUP_ERROR);
-  }
-
+  if (error) loginRedirect(GENERIC_SIGNUP_ERROR);
   redirect("/login?message=Check your email to confirm your account.");
 }
 
 export async function signInWithGoogle() {
-  const origin = await getRequestOrigin();
+  const origin = await getSiteOrigin();
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
-    options: {
-      redirectTo: `${origin}/auth/callback`
-    }
+    options: { redirectTo: `${origin}/auth/callback` }
   });
 
-  if (error || !data.url) {
-    loginRedirect(GENERIC_OAUTH_ERROR);
-  }
-
+  if (error || !data.url) loginRedirect(GENERIC_OAUTH_ERROR);
   redirect(data.url as RedirectTarget);
 }

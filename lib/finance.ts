@@ -2,10 +2,23 @@ import type {
   DashboardBudgetItem,
   DashboardDebtItem,
   DashboardWishlistItem,
-  ForecastResult,
+  ForecastEntry,
+  ForecastResult
 } from "@/lib/types";
 
+const currencyFormatter = new Intl.NumberFormat("en-IN", {
+  style: "currency",
+  currency: "INR",
+  maximumFractionDigits: 0
+});
+
+const monthYearFormatter = new Intl.DateTimeFormat("en-IN", {
+  month: "long",
+  year: "numeric"
+});
+
 export function formatCurrency(value: number, currency = "INR") {
+  if (currency === "INR") return currencyFormatter.format(value);
   return new Intl.NumberFormat("en-IN", {
     style: "currency",
     currency,
@@ -14,10 +27,7 @@ export function formatCurrency(value: number, currency = "INR") {
 }
 
 export function formatMonthYear(date: Date) {
-  return new Intl.DateTimeFormat("en-IN", {
-    month: "long",
-    year: "numeric"
-  }).format(date);
+  return monthYearFormatter.format(date);
 }
 
 export function addMonths(date: Date, months: number) {
@@ -30,6 +40,10 @@ export function calculateMonthlySavings(monthlySalary: number, budgetItems: Dash
     budgetTotal,
     monthlySavings: monthlySalary - budgetTotal
   };
+}
+
+function emptyForecast(id: string): ForecastEntry {
+  return { id, targetDate: null, monthsFromNow: null };
 }
 
 export function buildForecast(params: {
@@ -45,49 +59,45 @@ export function buildForecast(params: {
   );
 
   if (monthlySavings <= 0) {
+    const debtForecasts = params.debtItems.map((item) => emptyForecast(item.id));
+    const wishlistForecasts = params.wishlistItems.map((item) => emptyForecast(item.id));
     return {
       budgetTotal,
       monthlySavings,
-      debtForecasts: params.debtItems.map((item) => ({
-        id: item.id,
-        targetDate: null,
-        monthsFromNow: null
-      })),
-      wishlistForecasts: params.wishlistItems.map((item) => ({
-        id: item.id,
-        targetDate: null,
-        monthsFromNow: null
-      }))
+      debtForecasts,
+      wishlistForecasts,
+      debtForecastById: toMap(debtForecasts),
+      wishlistForecastById: toMap(wishlistForecasts)
     };
   }
 
-  let cumulativeAmount = 0;
   const startDate = params.startDate ?? new Date();
+  let cumulativeAmount = 0;
 
-  const debtForecasts = params.debtItems.map((item) => {
-    cumulativeAmount += item.amount;
-    const monthsFromNow = Math.ceil(cumulativeAmount / monthlySavings);
-    return {
-      id: item.id,
-      monthsFromNow,
-      targetDate: addMonths(startDate, monthsFromNow)
-    };
-  });
+  const project = <T extends { id: string; amount: number }>(items: T[]): ForecastEntry[] =>
+    items.map((item) => {
+      cumulativeAmount += item.amount;
+      const monthsFromNow = Math.ceil(cumulativeAmount / monthlySavings);
+      return {
+        id: item.id,
+        monthsFromNow,
+        targetDate: addMonths(startDate, monthsFromNow)
+      };
+    });
 
-  const wishlistForecasts = params.wishlistItems.map((item) => {
-    cumulativeAmount += item.amount;
-    const monthsFromNow = Math.ceil(cumulativeAmount / monthlySavings);
-    return {
-      id: item.id,
-      monthsFromNow,
-      targetDate: addMonths(startDate, monthsFromNow)
-    };
-  });
+  const debtForecasts = project(params.debtItems);
+  const wishlistForecasts = project(params.wishlistItems);
 
   return {
     budgetTotal,
     monthlySavings,
     debtForecasts,
-    wishlistForecasts
+    wishlistForecasts,
+    debtForecastById: toMap(debtForecasts),
+    wishlistForecastById: toMap(wishlistForecasts)
   };
+}
+
+function toMap(entries: ForecastEntry[]): Map<string, ForecastEntry> {
+  return new Map(entries.map((entry) => [entry.id, entry]));
 }

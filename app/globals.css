@@ -1,14 +1,33 @@
 @import "tailwindcss";
 
-:root {
-  --background: #f7f8f3;
-  --foreground: #171a1f;
-  --muted: #626a73;
-  --panel: #ffffff;
-  --line: #dde2dc;
-  --accent: #0f766e;
-  --accent-strong: #115e59;
-  --danger: #b42318;
+@theme {
+  --color-canvas: #f7f8f3;
+  --color-surface: #ffffff;
+  --color-line: #dde2dc;
+  --color-line-soft: #efeeeb;
+  --color-line-faint: #e7e5e2;
+
+  --color-ink-900: #171a1f;
+  --color-ink-700: #2f2f2f;
+  --color-ink-500: #626a73;
+  --color-ink-400: #7d7772;
+  --color-ink-300: #8a9199;
+  --color-ink-200: #9b9690;
+  --color-ink-100: #b8b3ad;
+
+  --color-brand-50: #eef4f1;
+  --color-brand-100: #f7f8f3;
+  --color-brand-200: #ccebe2;
+  --color-brand-700: #0f766e;
+  --color-brand-800: #115e59;
+  --color-brand-900: #134e4a;
+
+  --color-danger-50: #fef2f2;
+  --color-danger-200: #fecaca;
+  --color-danger-700: #b42318;
+  --color-danger-900: #7a271a;
+
+  --color-row-hover: #fbfaf8;
 }
 
 * {
@@ -18,8 +37,8 @@
 body {
   min-height: 100vh;
   margin: 0;
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--color-canvas);
+  color: var(--color-ink-900);
   font-family: Arial, Helvetica, sans-serif;
 }
 
@@ -40,6 +59,6 @@ button:disabled {
 }
 
 .focus-ring:focus-visible {
-  outline: 3px solid rgba(15, 118, 110, 0.28);
+  outline: 3px solid color-mix(in srgb, var(--color-brand-700) 28%, transparent);
   outline-offset: 2px;
 }

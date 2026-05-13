@@ -74,11 +74,25 @@ describe("finance forecasting", () => {
       monthlySalary: 40000,
       budgetItems: [budget({ amount: 45000 })],
       debtItems: [debt({})],
-      wishlistItems: [wishlist({})]
+      wishlistItems: [wishlist({})],
+      startDate: new Date(2026, 0, 1)
     });
 
     expect(forecast.monthlySavings).toBe(-5000);
     expect(forecast.debtForecasts[0].targetDate).toBeNull();
     expect(forecast.wishlistForecasts[0].targetDate).toBeNull();
+  });
+
+  it("exposes forecasts keyed by id for fast lookup", () => {
+    const forecast = buildForecast({
+      monthlySalary: 100000,
+      budgetItems: [],
+      debtItems: [debt({ id: "loan", amount: 50000 })],
+      wishlistItems: [wishlist({ id: "bike", amount: 100000 })],
+      startDate: new Date(2026, 0, 1)
+    });
+
+    expect(forecast.debtForecastById.get("loan")?.monthsFromNow).toBe(1);
+    expect(forecast.wishlistForecastById.get("bike")?.monthsFromNow).toBe(2);
   });
 });
