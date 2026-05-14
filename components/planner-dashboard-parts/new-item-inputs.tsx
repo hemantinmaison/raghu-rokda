@@ -1,7 +1,28 @@
-import { BUDGET_CATEGORY_SUGGESTIONS } from "@/lib/validation";
+import { EmojiPickerButton } from "./emoji-picker-button";
 
 const inputClass =
   "focus-ring h-14 w-full min-w-0 border-0 bg-transparent px-4 py-3 text-ink-700 placeholder:text-ink-100 hover:bg-row-hover focus:bg-white";
+
+export function NewNameInput({
+  formId,
+  placeholder
+}: {
+  formId: string;
+  placeholder: string;
+}) {
+  return (
+    <div className="flex h-14 items-center gap-1 pl-2 pr-1 hover:bg-row-hover">
+      <EmojiPickerButton formId={formId} name="emoji" />
+      <input
+        form={formId}
+        className="focus-ring h-full w-full min-w-0 border-0 bg-transparent px-2 py-3 text-ink-700 placeholder:text-ink-100 focus:bg-white"
+        name="name"
+        placeholder={placeholder}
+        required
+      />
+    </div>
+  );
+}
 
 export function NewTextInput({
   formId,
@@ -25,43 +46,25 @@ export function NewTextInput({
   );
 }
 
-export function NewCategoryInput({ formId }: { formId: string }) {
-  return (
-    <>
-      <input
-        form={formId}
-        className={inputClass}
-        name="category"
-        list="budget-categories"
-        placeholder="Category"
-        required
-      />
-      <datalist id="budget-categories">
-        {BUDGET_CATEGORY_SUGGESTIONS.map((category) => (
-          <option key={category} value={category} />
-        ))}
-      </datalist>
-    </>
-  );
-}
-
 export function NewNumberInput({
   formId,
   name,
   placeholder,
   required = false,
-  step = "1"
+  step = "1",
+  align = "left"
 }: {
   formId: string;
   name: string;
   placeholder: string;
   required?: boolean;
   step?: string;
+  align?: "left" | "right";
 }) {
   return (
     <input
       form={formId}
-      className={`${inputClass} tabular-nums`}
+      className={`${inputClass} tabular-nums ${align === "right" ? "text-right" : ""}`}
       name={name}
       type="number"
       min={required ? "1" : "0"}

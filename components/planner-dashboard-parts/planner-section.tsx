@@ -23,7 +23,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { deleteItem } from "@/app/actions/planner";
 import { formatCurrency } from "@/lib/finance";
 import type { ForecastEntry, PlannerKind } from "@/lib/types";
-import type { CreateAction, TableHeader } from "./types";
+import type { CreateAction, SectionConfigContext, TableHeader } from "./types";
 
 type SectionItem = { id: string; amount: number };
 
@@ -35,9 +35,10 @@ type PlannerSectionProps<T extends SectionItem> = {
   onItemsChange: (items: T[]) => void;
   onSortAmount: () => void;
   createAction: CreateAction;
-  renderNewCells: (formId: string) => ReactNode[];
+  renderNewCells: (formId: string, ctx: SectionConfigContext) => ReactNode[];
   renderCells: (item: T, ctx: { forecast?: ForecastEntry }) => ReactNode[];
   forecastById: Map<string, ForecastEntry> | null;
+  sectionContext: SectionConfigContext;
 };
 
 export function PlannerSection<T extends SectionItem>({
@@ -50,7 +51,8 @@ export function PlannerSection<T extends SectionItem>({
   createAction,
   renderNewCells,
   renderCells,
-  forecastById
+  forecastById,
+  sectionContext
 }: PlannerSectionProps<T>) {
   const [isAdding, setIsAdding] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -115,13 +117,15 @@ export function PlannerSection<T extends SectionItem>({
         <SortableContext items={items.map((item) => item.id)} strategy={verticalListSortingStrategy}>
           <div className="overflow-x-auto">
             <table className="w-full min-w-[820px] border-collapse text-[15px]">
-              <thead className="bg-white text-left font-medium text-ink-400">
+              <thead className="bg-white font-medium text-ink-400">
                 <tr className="h-12 border-b border-line-faint">
                   <th className="w-10 px-2 py-2" aria-label="Reorder" />
                   {headers.map((header) => (
                     <th
                       key={header.label}
-                      className="border-r border-line-faint px-4 py-2 font-medium last:border-r-0"
+                      className={`border-r border-line-faint px-4 py-2 font-medium last:border-r-0 ${
+                        header.align === "right" ? "text-right" : "text-left"
+                      }`}
                     >
                       <span className="inline-flex items-center gap-2">
                         <span className="text-[#a29d98]">{header.icon}</span>
@@ -139,12 +143,13 @@ export function PlannerSection<T extends SectionItem>({
                     id={item.id}
                     kind={kind}
                     dragEnabled={dragEnabled}
+                    headers={headers}
                     cells={renderCells(item, { forecast: forecastById?.get(item.id) })}
                   />
                 ))}
                 {isAdding ? (
                   <NewItemEditRow
-                    cells={renderNewCells(formId)}
+                    cells={renderNewCells(formId, sectionContext)}
                     error={submitError}
                     formId={formId}
                     isSaving={isSaving}
@@ -167,7 +172,9 @@ export function PlannerSection<T extends SectionItem>({
                     {headers.map((header, index) => (
                       <td
                         key={header.label}
-                        className="border-r border-line-soft px-4 py-3 align-middle last:border-r-0"
+                        className={`border-r border-line-soft px-4 py-3 align-middle last:border-r-0 ${
+                          header.align === "right" ? "text-right" : ""
+                        }`}
                       >
                         {index === amountColumnIndex ? (
                           <span className="tabular-nums text-ink-900">
@@ -192,11 +199,13 @@ function SortableRow({
   id,
   kind,
   dragEnabled,
+  headers,
   cells
 }: {
   id: string;
   kind: PlannerKind;
   dragEnabled: boolean;
+  headers: TableHeader[];
   cells: ReactNode[];
 }) {
   const [, startTransition] = useTransition();
@@ -234,7 +243,9 @@ function SortableRow({
       {cells.map((cell, index) => (
         <td
           key={index}
-          className="max-w-[340px] border-r border-line-soft px-4 py-3 align-middle last:border-r-0"
+          className={`max-w-[340px] border-r border-line-soft px-4 py-3 align-middle last:border-r-0 ${
+            headers[index]?.align === "right" ? "text-right" : ""
+          }`}
         >
           {cell}
         </td>

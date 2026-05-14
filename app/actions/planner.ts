@@ -62,7 +62,7 @@ export async function createBudgetItem(formData: FormData) {
   const { supabase, user } = await requireUser();
   const parsed = parseOrThrow(
     budgetItemSchema,
-    readFields(formData, ["name", "amount", "category", "details"] as const)
+    readFields(formData, ["name", "emoji", "amount", "category", "details"] as const)
   );
   const { error } = await supabase.from("budget_items").insert({ ...parsed, user_id: user.id });
   throwIfError(error);
@@ -73,7 +73,10 @@ export async function createDebtItem(formData: FormData) {
   const { supabase, user } = await requireUser();
   const parsed = parseOrThrow(
     debtItemSchema,
-    readFields(formData, ["name", "amount", "interest_rate", "tenure_months", "details"] as const)
+    readFields(
+      formData,
+      ["name", "emoji", "amount", "interest_rate", "tenure_months", "details"] as const
+    )
   );
   const { error } = await supabase.from("debt_items").insert({ ...parsed, user_id: user.id });
   throwIfError(error);
@@ -84,7 +87,7 @@ export async function createWishlistItem(formData: FormData) {
   const { supabase, user } = await requireUser();
   const parsed = parseOrThrow(
     wishlistItemSchema,
-    readFields(formData, ["name", "amount", "details"] as const)
+    readFields(formData, ["name", "emoji", "amount", "details"] as const)
   );
   const { error } = await supabase.from("wishlist_items").insert({ ...parsed, user_id: user.id });
   throwIfError(error);

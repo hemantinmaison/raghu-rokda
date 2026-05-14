@@ -3,20 +3,6 @@ import { z } from "zod";
 export const uuidSchema = z.string().uuid();
 export const plannerKindSchema = z.enum(["budget", "debt", "wishlist"]);
 
-// Free-text categories are allowed (datalist is just hints) but bounded.
-export const BUDGET_CATEGORY_SUGGESTIONS = [
-  "Rent",
-  "Groceries",
-  "Transport",
-  "Utilities",
-  "Insurance",
-  "Healthcare",
-  "Education",
-  "Subscriptions",
-  "Family",
-  "Other"
-] as const;
-
 const money = z.coerce.number().finite().positive("Amount must be greater than zero");
 
 // Zod's `z.preprocess` infers `unknown`, and chained transforms don't propagate
@@ -47,16 +33,25 @@ const categoryField = z
   .trim()
   .min(1, "Category is required")
   .max(60, "Category is too long");
+const emojiField: z.ZodType<string | null, z.ZodTypeDef, unknown> = z
+  .string()
+  .trim()
+  .max(16, "Emoji is too long")
+  .nullable()
+  .optional()
+  .transform((v): string | null => (v === undefined || v === null || v === "" ? null : v));
 
 export type ProfileInput = { monthly_salary: number };
 export type BudgetItemInput = {
   name: string;
+  emoji: string | null;
   amount: number;
   category: string;
   details: string | null;
 };
 export type DebtItemInput = {
   name: string;
+  emoji: string | null;
   amount: number;
   interest_rate: number | null;
   tenure_months: number | null;
@@ -64,6 +59,7 @@ export type DebtItemInput = {
 };
 export type WishlistItemInput = {
   name: string;
+  emoji: string | null;
   amount: number;
   details: string | null;
 };
@@ -74,6 +70,7 @@ export const profileSchema: z.ZodType<ProfileInput, z.ZodTypeDef, unknown> = z.o
 
 export const budgetItemSchema: z.ZodType<BudgetItemInput, z.ZodTypeDef, unknown> = z.object({
   name: nameField,
+  emoji: emojiField,
   amount: money,
   category: categoryField,
   details: detailsField
@@ -81,6 +78,7 @@ export const budgetItemSchema: z.ZodType<BudgetItemInput, z.ZodTypeDef, unknown>
 
 export const debtItemSchema: z.ZodType<DebtItemInput, z.ZodTypeDef, unknown> = z.object({
   name: nameField,
+  emoji: emojiField,
   amount: money,
   interest_rate: optionalNonNegativeNumber,
   tenure_months: optionalPositiveInteger,
@@ -89,6 +87,7 @@ export const debtItemSchema: z.ZodType<DebtItemInput, z.ZodTypeDef, unknown> = z
 
 export const wishlistItemSchema: z.ZodType<WishlistItemInput, z.ZodTypeDef, unknown> = z.object({
   name: nameField,
+  emoji: emojiField,
   amount: money,
   details: detailsField
 });

@@ -35,6 +35,7 @@ export type Database = {
           id: string;
           user_id: string;
           name: string;
+          emoji: string | null;
           amount: number;
           category: string;
           details: string | null;
@@ -46,6 +47,7 @@ export type Database = {
           id?: string;
           user_id: string;
           name: string;
+          emoji?: string | null;
           amount: number;
           category: string;
           details?: string | null;
@@ -57,6 +59,7 @@ export type Database = {
           id?: string;
           user_id?: string;
           name?: string;
+          emoji?: string | null;
           amount?: number;
           category?: string;
           details?: string | null;
@@ -71,6 +74,7 @@ export type Database = {
           id: string;
           user_id: string;
           name: string;
+          emoji: string | null;
           amount: number;
           interest_rate: number | null;
           tenure_months: number | null;
@@ -83,6 +87,7 @@ export type Database = {
           id?: string;
           user_id: string;
           name: string;
+          emoji?: string | null;
           amount: number;
           interest_rate?: number | null;
           tenure_months?: number | null;
@@ -95,6 +100,7 @@ export type Database = {
           id?: string;
           user_id?: string;
           name?: string;
+          emoji?: string | null;
           amount?: number;
           interest_rate?: number | null;
           tenure_months?: number | null;
@@ -110,6 +116,7 @@ export type Database = {
           id: string;
           user_id: string;
           name: string;
+          emoji: string | null;
           amount: number;
           details: string | null;
           sort_order: number;
@@ -120,6 +127,7 @@ export type Database = {
           id?: string;
           user_id: string;
           name: string;
+          emoji?: string | null;
           amount: number;
           details?: string | null;
           sort_order?: number;
@@ -130,6 +138,7 @@ export type Database = {
           id?: string;
           user_id?: string;
           name?: string;
+          emoji?: string | null;
           amount?: number;
           details?: string | null;
           sort_order?: number;

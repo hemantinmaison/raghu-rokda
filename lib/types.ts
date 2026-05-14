@@ -10,15 +10,15 @@ export type PlannerKind = "budget" | "debt" | "wishlist";
 export type DashboardProfile = Pick<Profile, "monthly_salary" | "currency">;
 export type DashboardBudgetItem = Pick<
   BudgetItem,
-  "id" | "name" | "amount" | "category" | "details" | "sort_order"
+  "id" | "name" | "emoji" | "amount" | "category" | "details" | "sort_order"
 >;
 export type DashboardDebtItem = Pick<
   DebtItem,
-  "id" | "name" | "amount" | "interest_rate" | "tenure_months" | "details" | "sort_order"
+  "id" | "name" | "emoji" | "amount" | "interest_rate" | "tenure_months" | "details" | "sort_order"
 >;
 export type DashboardWishlistItem = Pick<
   WishlistItem,
-  "id" | "name" | "amount" | "details" | "sort_order"
+  "id" | "name" | "emoji" | "amount" | "details" | "sort_order"
 >;
 
 export type ForecastEntry = {

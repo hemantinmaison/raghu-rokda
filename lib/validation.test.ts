@@ -25,7 +25,13 @@ describe("validation", () => {
       category: "Rent",
       details: ""
     });
-    expect(ok).toEqual({ name: "Rent", amount: 30000, category: "Rent", details: null });
+    expect(ok).toEqual({
+      name: "Rent",
+      emoji: null,
+      amount: 30000,
+      category: "Rent",
+      details: null
+    });
 
     expect(budgetItemSchema.safeParse({ name: "", amount: 1, category: "x" }).success).toBe(false);
     expect(budgetItemSchema.safeParse({ name: "x", amount: 0, category: "x" }).success).toBe(false);
@@ -42,6 +48,7 @@ describe("validation", () => {
       })
     ).toEqual({
       name: "Loan",
+      emoji: null,
       amount: 5000,
       interest_rate: null,
       tenure_months: null,
@@ -58,6 +65,7 @@ describe("validation", () => {
       })
     ).toEqual({
       name: "Loan",
+      emoji: null,
       amount: 5000,
       interest_rate: 8.5,
       tenure_months: 24,

@@ -22,6 +22,7 @@ type DashboardProps = {
   budgetItems: DashboardBudgetItem[];
   debtItems: DashboardDebtItem[];
   wishlistItems: DashboardWishlistItem[];
+  budgetCategories: string[];
 };
 
 const TABS = [
@@ -38,8 +39,10 @@ export function PlannerDashboard({
   profile,
   budgetItems,
   debtItems,
-  wishlistItems
+  wishlistItems,
+  budgetCategories
 }: DashboardProps) {
+  const sectionContext = useMemo(() => ({ budgetCategories }), [budgetCategories]);
   const [activeTab, setActiveTab] = useState<PlannerKind>("budget");
   const [, startTransition] = useTransition();
 
@@ -140,6 +143,7 @@ export function PlannerDashboard({
               onItemsChange={(next) => commitReorder("budget", setBudgetOrder, next)}
               onSortAmount={() => applyAmountSort("budget")}
               forecastById={null}
+              sectionContext={sectionContext}
             />
           ) : activeTab === "debt" ? (
             <PlannerSection
@@ -148,6 +152,7 @@ export function PlannerDashboard({
               onItemsChange={(next) => commitReorder("debt", setDebtOrder, next)}
               onSortAmount={() => applyAmountSort("debt")}
               forecastById={forecast.debtForecastById}
+              sectionContext={sectionContext}
             />
           ) : (
             <PlannerSection
@@ -156,6 +161,7 @@ export function PlannerDashboard({
               onItemsChange={(next) => commitReorder("wishlist", setWishlistOrder, next)}
               onSortAmount={() => applyAmountSort("wishlist")}
               forecastById={forecast.wishlistForecastById}
+              sectionContext={sectionContext}
             />
           )}
         </div>

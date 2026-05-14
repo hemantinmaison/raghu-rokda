@@ -1,12 +1,19 @@
 import type { ReactNode } from "react";
 import { formatCurrency } from "@/lib/finance";
 
-export function NameCell({ title }: { title: string }) {
-  return <div className="min-w-44 font-semibold text-ink-700">{title}</div>;
+export function NameCell({ title, emoji }: { title: string; emoji?: string | null }) {
+  return (
+    <div className="flex min-w-44 items-center gap-2 font-semibold text-ink-700">
+      <span aria-hidden className="inline-flex w-6 shrink-0 justify-center text-lg">
+        {emoji ?? ""}
+      </span>
+      <span className="truncate">{title}</span>
+    </div>
+  );
 }
 
 export function AmountCell({ value }: { value: number }) {
-  return <div className="font-medium tabular-nums text-ink-900">{formatCurrency(value)}</div>;
+  return <div className="text-right font-medium tabular-nums text-ink-900">{formatCurrency(value)}</div>;
 }
 
 export function PropertyCell({ children }: { children: ReactNode }) {

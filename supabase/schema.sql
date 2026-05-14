@@ -17,6 +17,7 @@ create table if not exists public.budget_items (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
   name text not null check (char_length(trim(name)) > 0),
+  emoji text,
   amount numeric(12, 2) not null check (amount > 0),
   category text not null check (char_length(trim(category)) > 0),
   details text,
@@ -29,6 +30,7 @@ create table if not exists public.debt_items (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
   name text not null check (char_length(trim(name)) > 0),
+  emoji text,
   amount numeric(12, 2) not null check (amount > 0),
   interest_rate numeric(7, 3) check (interest_rate is null or interest_rate >= 0),
   tenure_months integer check (tenure_months is null or tenure_months > 0),
@@ -42,12 +44,17 @@ create table if not exists public.wishlist_items (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
   name text not null check (char_length(trim(name)) > 0),
+  emoji text,
   amount numeric(12, 2) not null check (amount > 0),
   details text,
   sort_order integer not null default nextval('public.wishlist_items_sort_order_seq'),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table public.budget_items add column if not exists emoji text;
+alter table public.debt_items add column if not exists emoji text;
+alter table public.wishlist_items add column if not exists emoji text;
 
 create or replace function public.set_updated_at()
 returns trigger

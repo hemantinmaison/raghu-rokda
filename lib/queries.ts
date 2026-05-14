@@ -17,6 +17,7 @@ export type DashboardData = {
   budgetItems: DashboardBudgetItem[];
   debtItems: DashboardDebtItem[];
   wishlistItems: DashboardWishlistItem[];
+  budgetCategories: string[];
 };
 
 export type DashboardLoadResult =
@@ -30,19 +31,19 @@ export async function fetchDashboardData(userId: string): Promise<DashboardLoadR
     supabase.from("profiles").select("monthly_salary,currency").eq("user_id", userId).maybeSingle(),
     supabase
       .from("budget_items")
-      .select("id,name,amount,category,details,sort_order")
+      .select("id,name,emoji,amount,category,details,sort_order")
       .eq("user_id", userId)
       .order("sort_order")
       .order("id"),
     supabase
       .from("debt_items")
-      .select("id,name,amount,interest_rate,tenure_months,details,sort_order")
+      .select("id,name,emoji,amount,interest_rate,tenure_months,details,sort_order")
       .eq("user_id", userId)
       .order("sort_order")
       .order("id"),
     supabase
       .from("wishlist_items")
-      .select("id,name,amount,details,sort_order")
+      .select("id,name,emoji,amount,details,sort_order")
       .eq("user_id", userId)
       .order("sort_order")
       .order("id")
@@ -52,13 +53,19 @@ export async function fetchDashboardData(userId: string): Promise<DashboardLoadR
     profileResult.error ?? budgetResult.error ?? debtResult.error ?? wishlistResult.error;
   if (firstError) return { ok: false, error: firstError.message };
 
+  const budgetItems = (budgetResult.data ?? []).map(normalizeBudgetItem);
+  const budgetCategories = Array.from(
+    new Set(budgetItems.map((item) => item.category.trim()).filter((value) => value.length > 0))
+  ).sort((a, b) => a.localeCompare(b));
+
   return {
     ok: true,
     data: {
       profile: normalizeProfile(profileResult.data),
-      budgetItems: (budgetResult.data ?? []).map(normalizeBudgetItem),
+      budgetItems,
       debtItems: (debtResult.data ?? []).map(normalizeDebtItem),
-      wishlistItems: (wishlistResult.data ?? []).map(normalizeWishlistItem)
+      wishlistItems: (wishlistResult.data ?? []).map(normalizeWishlistItem),
+      budgetCategories
     }
   };
 }

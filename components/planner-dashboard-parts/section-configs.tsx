@@ -29,12 +29,9 @@ import {
   PlaceholderCell,
   PropertyCell
 } from "./table-cells";
-import {
-  NewCategoryInput,
-  NewNumberInput,
-  NewTextInput
-} from "./new-item-inputs";
-import type { CreateAction, TableHeader } from "./types";
+import { NewNameInput, NewNumberInput, NewTextInput } from "./new-item-inputs";
+import { CategoryCombobox } from "./category-combobox";
+import type { CreateAction, SectionConfigContext, TableHeader } from "./types";
 
 type SectionItem = DashboardBudgetItem | DashboardDebtItem | DashboardWishlistItem;
 
@@ -43,20 +40,20 @@ export type SectionConfig<T extends SectionItem> = {
   title: string;
   headers: TableHeader[];
   createAction: CreateAction;
-  renderNewCells: (formId: string) => ReactNode[];
+  renderNewCells: (formId: string, ctx: SectionConfigContext) => ReactNode[];
   renderCells: (item: T, ctx: { forecast?: ForecastEntry }) => ReactNode[];
 };
 
 const BUDGET_HEADERS: TableHeader[] = [
   { label: "Name", icon: <Type className="size-4" /> },
   { label: "Type / category", icon: <Tag className="size-4" /> },
-  { label: "Amount", icon: <IndianRupee className="size-4" /> },
+  { label: "Amount", icon: <IndianRupee className="size-4" />, align: "right" },
   { label: "Details", icon: <FileText className="size-4" /> }
 ];
 
 const DEBT_HEADERS: TableHeader[] = [
   { label: "Name", icon: <Type className="size-4" /> },
-  { label: "Amount", icon: <IndianRupee className="size-4" /> },
+  { label: "Amount", icon: <IndianRupee className="size-4" />, align: "right" },
   { label: "Interest", icon: <CircleDot className="size-4" /> },
   { label: "Tenure", icon: <Hash className="size-4" /> },
   { label: "Forecast", icon: <CalendarCheck className="size-4" /> },
@@ -65,7 +62,7 @@ const DEBT_HEADERS: TableHeader[] = [
 
 const WISHLIST_HEADERS: TableHeader[] = [
   { label: "Name", icon: <Type className="size-4" /> },
-  { label: "Amount", icon: <IndianRupee className="size-4" /> },
+  { label: "Amount", icon: <IndianRupee className="size-4" />, align: "right" },
   { label: "Forecast", icon: <CalendarCheck className="size-4" /> },
   { label: "Details", icon: <FileText className="size-4" /> }
 ];
@@ -75,14 +72,14 @@ export const budgetConfig: SectionConfig<DashboardBudgetItem> = {
   title: "Monthly Budget",
   headers: BUDGET_HEADERS,
   createAction: createBudgetItem,
-  renderNewCells: (formId) => [
-    <NewTextInput key="name" formId={formId} name="name" placeholder="Budget name" required />,
-    <NewCategoryInput key="category" formId={formId} />,
-    <NewNumberInput key="amount" formId={formId} name="amount" placeholder="0" required />,
+  renderNewCells: (formId, { budgetCategories }) => [
+    <NewNameInput key="name" formId={formId} placeholder="Budget name" />,
+    <CategoryCombobox key="category" formId={formId} name="category" options={budgetCategories} required />,
+    <NewNumberInput key="amount" formId={formId} name="amount" placeholder="0" required align="right" />,
     <NewTextInput key="details" formId={formId} name="details" placeholder="Optional details" />
   ],
   renderCells: (item) => [
-    <NameCell key="name" title={item.name} />,
+    <NameCell key="name" title={item.name} emoji={item.emoji} />,
     <PropertyCell key="category">{item.category}</PropertyCell>,
     <AmountCell key="amount" value={item.amount} />,
     <DetailsCell key="details" details={item.details} />
@@ -95,8 +92,8 @@ export const debtConfig: SectionConfig<DashboardDebtItem> = {
   headers: DEBT_HEADERS,
   createAction: createDebtItem,
   renderNewCells: (formId) => [
-    <NewTextInput key="name" formId={formId} name="name" placeholder="Debt name" required />,
-    <NewNumberInput key="amount" formId={formId} name="amount" placeholder="0" required />,
+    <NewNameInput key="name" formId={formId} placeholder="Debt name" />,
+    <NewNumberInput key="amount" formId={formId} name="amount" placeholder="0" required align="right" />,
     <NewNumberInput
       key="interest"
       formId={formId}
@@ -109,7 +106,7 @@ export const debtConfig: SectionConfig<DashboardDebtItem> = {
     <NewTextInput key="details" formId={formId} name="details" placeholder="Optional details" />
   ],
   renderCells: (item, { forecast }) => [
-    <NameCell key="name" title={item.name} />,
+    <NameCell key="name" title={item.name} emoji={item.emoji} />,
     <AmountCell key="amount" value={item.amount} />,
     <PropertyCell key="interest">
       {item.interest_rate === null ? "—" : `${item.interest_rate}%`}
@@ -131,13 +128,13 @@ export const wishlistConfig: SectionConfig<DashboardWishlistItem> = {
   headers: WISHLIST_HEADERS,
   createAction: createWishlistItem,
   renderNewCells: (formId) => [
-    <NewTextInput key="name" formId={formId} name="name" placeholder="Wishlist item" required />,
-    <NewNumberInput key="amount" formId={formId} name="amount" placeholder="0" required />,
+    <NewNameInput key="name" formId={formId} placeholder="Wishlist item" />,
+    <NewNumberInput key="amount" formId={formId} name="amount" placeholder="0" required align="right" />,
     <PlaceholderCell key="forecast">Calculated after save</PlaceholderCell>,
     <NewTextInput key="details" formId={formId} name="details" placeholder="Optional details" />
   ],
   renderCells: (item, { forecast }) => [
-    <NameCell key="name" title={item.name} />,
+    <NameCell key="name" title={item.name} emoji={item.emoji} />,
     <AmountCell key="amount" value={item.amount} />,
     <ForecastCell
       key="forecast"

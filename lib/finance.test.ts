@@ -14,6 +14,7 @@ function budget(overrides: Partial<BudgetItem>): BudgetItem {
     ...base,
     id: "budget-1",
     name: "Rent",
+    emoji: null,
     amount: 30000,
     category: "Rent",
     details: null,
@@ -26,6 +27,7 @@ function debt(overrides: Partial<DebtItem>): DebtItem {
     ...base,
     id: "debt-1",
     name: "Loan",
+    emoji: null,
     amount: 50000,
     interest_rate: null,
     tenure_months: null,
@@ -39,6 +41,7 @@ function wishlist(overrides: Partial<WishlistItem>): WishlistItem {
     ...base,
     id: "wish-1",
     name: "Laptop",
+    emoji: null,
     amount: 40000,
     details: null,
     ...overrides

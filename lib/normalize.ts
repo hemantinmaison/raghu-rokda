@@ -17,9 +17,16 @@ export function normalizeProfile(profile: DashboardProfile | null): DashboardPro
   };
 }
 
+function normalizeEmoji(value: string | null | undefined): string | null {
+  if (value === null || value === undefined) return null;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
 export function normalizeBudgetItem(item: DashboardBudgetItem): DashboardBudgetItem {
   return {
     ...item,
+    emoji: normalizeEmoji(item.emoji),
     amount: toNumber(item.amount),
     sort_order: toNumber(item.sort_order)
   };
@@ -28,6 +35,7 @@ export function normalizeBudgetItem(item: DashboardBudgetItem): DashboardBudgetI
 export function normalizeDebtItem(item: DashboardDebtItem): DashboardDebtItem {
   return {
     ...item,
+    emoji: normalizeEmoji(item.emoji),
     amount: toNumber(item.amount),
     interest_rate: item.interest_rate === null ? null : toNumber(item.interest_rate),
     tenure_months: item.tenure_months === null ? null : toNumber(item.tenure_months),
@@ -38,6 +46,7 @@ export function normalizeDebtItem(item: DashboardDebtItem): DashboardDebtItem {
 export function normalizeWishlistItem(item: DashboardWishlistItem): DashboardWishlistItem {
   return {
     ...item,
+    emoji: normalizeEmoji(item.emoji),
     amount: toNumber(item.amount),
     sort_order: toNumber(item.sort_order)
   };
