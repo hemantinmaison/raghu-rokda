@@ -1,21 +1,14 @@
 "use client";
 
 import { useMemo, useOptimistic, useState, useTransition } from "react";
-import {
-  BadgeIndianRupee,
-  CalendarCheck,
-  Save,
-  SlidersHorizontal
-} from "lucide-react";
-import { reorderItems, updateSalary } from "@/app/actions/planner";
-import { MetricCard } from "@/components/planner-dashboard-parts/metric-card";
+import { reorderItems } from "@/app/actions/planner";
 import { PlannerSection } from "@/components/planner-dashboard-parts/planner-section";
 import {
   budgetConfig,
   debtConfig,
   wishlistConfig
 } from "@/components/planner-dashboard-parts/section-configs";
-import { buildForecast, formatCurrency } from "@/lib/finance";
+import { buildForecast } from "@/lib/finance";
 import type {
   DashboardBudgetItem,
   DashboardDebtItem,
@@ -26,7 +19,6 @@ import type {
 
 type DashboardProps = {
   profile: DashboardProfile;
-  userEmail: string;
   budgetItems: DashboardBudgetItem[];
   debtItems: DashboardDebtItem[];
   wishlistItems: DashboardWishlistItem[];
@@ -44,7 +36,6 @@ function reorderReducer<T>(_prev: T[], next: T[]): T[] {
 
 export function PlannerDashboard({
   profile,
-  userEmail,
   budgetItems,
   debtItems,
   wishlistItems
@@ -111,51 +102,6 @@ export function PlannerDashboard({
 
   return (
     <div className="mx-auto grid max-w-7xl gap-6 px-5 py-6">
-      <section className="grid gap-4 rounded-lg border border-line bg-white p-4 shadow-sm lg:grid-cols-[1fr_380px] lg:items-end">
-        <div>
-          <p className="text-sm text-ink-500">{userEmail}</p>
-          <h2 className="mt-1 text-3xl font-semibold">
-            Plan this month and the months after it.
-          </h2>
-        </div>
-        <form action={updateSalary} className="grid gap-2 sm:grid-cols-[1fr_auto] sm:items-end">
-          <label className="grid gap-1 text-sm font-medium">
-            Monthly salary
-            <input
-              className="focus-ring rounded-md border border-line px-3 py-3"
-              name="monthly_salary"
-              type="number"
-              min="0"
-              step="1"
-              defaultValue={profile.monthly_salary}
-            />
-          </label>
-          <button className="focus-ring inline-flex items-center justify-center gap-2 rounded-md bg-teal-700 px-4 py-3 font-semibold text-white hover:bg-teal-800">
-            <Save className="size-4" />
-            Save
-          </button>
-        </form>
-      </section>
-
-      <section className="grid gap-3 md:grid-cols-3">
-        <MetricCard
-          icon={<BadgeIndianRupee className="size-5" />}
-          label="Monthly budget"
-          value={formatCurrency(forecast.budgetTotal)}
-        />
-        <MetricCard
-          icon={<SlidersHorizontal className="size-5" />}
-          label="Monthly savings"
-          value={formatCurrency(forecast.monthlySavings)}
-          tone={forecast.monthlySavings > 0 ? "good" : "danger"}
-        />
-        <MetricCard
-          icon={<CalendarCheck className="size-5" />}
-          label="Forecast status"
-          value={forecast.monthlySavings > 0 ? "Projected" : "Needs surplus"}
-        />
-      </section>
-
       <div className="grid gap-4">
         <div role="tablist" aria-label="Planner sections" className="flex justify-center">
           <div className="inline-flex max-w-full overflow-x-auto rounded-md border border-line bg-white p-1 shadow-sm">

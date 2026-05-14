@@ -21,6 +21,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { deleteItem } from "@/app/actions/planner";
+import { formatCurrency } from "@/lib/finance";
 import type { ForecastEntry, PlannerKind } from "@/lib/types";
 import type { CreateAction, TableHeader } from "./types";
 
@@ -56,6 +57,8 @@ export function PlannerSection<T extends SectionItem>({
   const [isSaving, setIsSaving] = useState(false);
   const formId = `new-${kind}-item-form`;
   const dragEnabled = items.length > 1;
+  const amountColumnIndex = headers.findIndex((header) => header.label === "Amount");
+  const amountTotal = items.reduce((sum, item) => sum + item.amount, 0);
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
@@ -157,6 +160,26 @@ export function PlannerSection<T extends SectionItem>({
                   />
                 )}
               </tbody>
+              {items.length > 0 && amountColumnIndex >= 0 ? (
+                <tfoot>
+                  <tr className="h-14 border-t border-line bg-canvas font-semibold">
+                    <td className="px-2 py-2" />
+                    {headers.map((header, index) => (
+                      <td
+                        key={header.label}
+                        className="border-r border-line-soft px-4 py-3 align-middle last:border-r-0"
+                      >
+                        {index === amountColumnIndex ? (
+                          <span className="tabular-nums text-ink-900">
+                            {formatCurrency(amountTotal)}
+                          </span>
+                        ) : null}
+                      </td>
+                    ))}
+                    <td className="px-2 py-2" />
+                  </tr>
+                </tfoot>
+              ) : null}
             </table>
           </div>
         </SortableContext>

@@ -1,22 +1,28 @@
 import type { ReactNode } from "react";
 import { signOut } from "@/app/auth/actions";
+import { HeaderProfile } from "@/components/header-profile";
 
-export function AppShell({ children }: { children: ReactNode }) {
+type AppShellProps = {
+  children: ReactNode;
+  userEmail?: string;
+  monthlySalary?: number;
+};
+
+export function AppShell({ children, userEmail, monthlySalary }: AppShellProps) {
   return (
     <main className="min-h-screen bg-canvas text-ink-900">
       <header className="border-b border-line bg-white">
-        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-teal-700">
-              Finance Planner
-            </p>
-            <h1 className="text-2xl font-semibold">Personal cashflow dashboard</h1>
-          </div>
-          <form action={signOut}>
-            <button className="focus-ring rounded-md border border-line px-4 py-2 text-sm font-semibold hover:bg-canvas">
-              Sign out
-            </button>
-          </form>
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4">
+          <h1 className="text-2xl font-semibold">Raghu Rokda</h1>
+          {userEmail ? (
+            <HeaderProfile userEmail={userEmail} monthlySalary={monthlySalary ?? 0} />
+          ) : (
+            <form action={signOut}>
+              <button className="focus-ring rounded-md border border-line px-4 py-2 text-sm font-semibold hover:bg-canvas">
+                Sign out
+              </button>
+            </form>
+          )}
         </div>
       </header>
       {children}

@@ -12,19 +12,20 @@ export default async function Home() {
 
   if (!user) redirect("/login");
 
+  const userEmail = user.email ?? "Signed in";
   const result = await fetchDashboardData(user.id);
 
   if (!result.ok) {
     return (
-      <AppShell>
+      <AppShell userEmail={userEmail}>
         <DashboardLoadError message={result.error} />
       </AppShell>
     );
   }
 
   return (
-    <AppShell>
-      <PlannerDashboard userEmail={user.email ?? "Signed in"} {...result.data} />
+    <AppShell userEmail={userEmail} monthlySalary={result.data.profile.monthly_salary}>
+      <PlannerDashboard {...result.data} />
     </AppShell>
   );
 }
