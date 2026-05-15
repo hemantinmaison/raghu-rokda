@@ -47,6 +47,18 @@ function throwIfError(error: PostgrestError | null) {
   if (error) throw new Error(error.message);
 }
 
+async function nextSortOrder(supabase: Supabase, table: AnyTable, userId: string) {
+  const { data, error } = await supabase
+    .from(table)
+    .select("sort_order")
+    .eq("user_id", userId)
+    .order("sort_order", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  return (data?.sort_order ?? -1) + 1;
+}
+
 export async function updateSalary(formData: FormData) {
   const { supabase, user } = await requireUser();
   const parsed = parseOrThrow(profileSchema, readFields(formData, ["monthly_salary"]));
@@ -68,7 +80,10 @@ export async function createBudgetItem(formData: FormData) {
     budgetItemSchema,
     readFields(formData, ["name", "emoji", "amount", "category", "details"] as const)
   );
-  const { error } = await supabase.from("budget_items").insert({ ...parsed, user_id: user.id });
+  const sort_order = await nextSortOrder(supabase, "budget_items", user.id);
+  const { error } = await supabase
+    .from("budget_items")
+    .insert({ ...parsed, user_id: user.id, sort_order });
   throwIfError(error);
   revalidatePath("/");
 }
@@ -141,7 +156,10 @@ export async function createDebtItem(formData: FormData) {
       ["name", "emoji", "amount", "interest_rate", "tenure_months", "details"] as const
     )
   );
-  const { error } = await supabase.from("debt_items").insert({ ...parsed, user_id: user.id });
+  const sort_order = await nextSortOrder(supabase, "debt_items", user.id);
+  const { error } = await supabase
+    .from("debt_items")
+    .insert({ ...parsed, user_id: user.id, sort_order });
   throwIfError(error);
   revalidatePath("/");
 }
@@ -152,7 +170,10 @@ export async function createWishlistItem(formData: FormData) {
     wishlistItemSchema,
     readFields(formData, ["name", "emoji", "amount", "details"] as const)
   );
-  const { error } = await supabase.from("wishlist_items").insert({ ...parsed, user_id: user.id });
+  const sort_order = await nextSortOrder(supabase, "wishlist_items", user.id);
+  const { error } = await supabase
+    .from("wishlist_items")
+    .insert({ ...parsed, user_id: user.id, sort_order });
   throwIfError(error);
   revalidatePath("/");
 }

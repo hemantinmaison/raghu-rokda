@@ -19,6 +19,9 @@ type CategoryComboboxProps = {
 };
 
 const POPOVER_WIDTH = 260;
+const POPOVER_MAX_HEIGHT = 300;
+
+type PopoverPosition = { left: number; top?: number; bottom?: number };
 
 export function CategoryCombobox({
   formId,
@@ -35,7 +38,7 @@ export function CategoryCombobox({
   const [value, setValue] = useState(defaultValue);
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
-  const [position, setPosition] = useState<{ top: number; left: number } | null>(null);
+  const [position, setPosition] = useState<PopoverPosition | null>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -59,10 +62,14 @@ export function CategoryCombobox({
     function place() {
       const rect = buttonRef.current!.getBoundingClientRect();
       const maxLeft = window.innerWidth - POPOVER_WIDTH - 8;
-      setPosition({
-        top: rect.bottom + 4,
-        left: Math.min(Math.max(8, rect.left), maxLeft)
-      });
+      const left = Math.min(Math.max(8, rect.left), maxLeft);
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const openUp = spaceBelow < POPOVER_MAX_HEIGHT && rect.top > spaceBelow;
+      if (openUp) {
+        setPosition({ left, bottom: window.innerHeight - rect.top + 4 });
+      } else {
+        setPosition({ left, top: rect.bottom + 4 });
+      }
     }
     place();
     window.addEventListener("resize", place);
@@ -120,10 +127,8 @@ export function CategoryCombobox({
           setIsOpen((open) => !open);
           setTimeout(() => inputRef.current?.focus(), 0);
         }}
-        className={`focus-ring flex min-w-0 items-center text-left text-sm hover:bg-row-hover disabled:cursor-not-allowed disabled:opacity-60 ${
-          isCompact
-            ? "h-7 max-w-full gap-1.5 rounded px-1.5 py-1"
-            : "h-11 w-full justify-between px-3 py-2"
+        className={`focus-ring flex w-full min-w-0 items-center justify-between text-left text-sm hover:bg-row-hover disabled:cursor-not-allowed disabled:opacity-60 ${
+          isCompact ? "h-7 rounded px-1.5 py-1" : "h-11 px-3 py-2"
         }`}
       >
         <span className="min-w-0">
@@ -142,11 +147,13 @@ export function CategoryCombobox({
               style={{
                 position: "fixed",
                 top: position.top,
+                bottom: position.bottom,
                 left: position.left,
                 width: POPOVER_WIDTH,
+                maxHeight: POPOVER_MAX_HEIGHT,
                 zIndex: 1000
               }}
-              className="overflow-hidden rounded-lg border border-line bg-white shadow-lg"
+              className="flex flex-col overflow-hidden rounded-lg border border-line bg-white shadow-lg"
             >
               <div className="border-b border-line-faint p-2">
                 <input
