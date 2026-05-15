@@ -13,8 +13,10 @@ const GAP = 6;
 
 type EmojiPickerButtonProps = {
   formId?: string;
-  name: string;
+  name?: string;
   defaultValue?: string | null;
+  value?: string | null;
+  onSelect?: (emoji: string | null) => void;
   ariaLabel?: string;
 };
 
@@ -22,9 +24,12 @@ export function EmojiPickerButton({
   formId,
   name,
   defaultValue = null,
+  value,
+  onSelect,
   ariaLabel = "Pick an emoji"
 }: EmojiPickerButtonProps) {
-  const [emoji, setEmoji] = useState<string | null>(defaultValue ?? null);
+  const [internalEmoji, setInternalEmoji] = useState<string | null>(defaultValue ?? null);
+  const emoji = value !== undefined ? value : internalEmoji;
   const [isOpen, setIsOpen] = useState(false);
   const [position, setPosition] = useState<{ top: number; left: number } | null>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -69,7 +74,7 @@ export function EmojiPickerButton({
 
   return (
     <>
-      <input type="hidden" form={formId} name={name} value={emoji ?? ""} />
+      {name ? <input type="hidden" form={formId} name={name} value={emoji ?? ""} /> : null}
       <button
         ref={buttonRef}
         type="button"
@@ -94,7 +99,8 @@ export function EmojiPickerButton({
                 width={PICKER_WIDTH}
                 height={PICKER_HEIGHT}
                 onEmojiClick={(data) => {
-                  setEmoji(data.emoji);
+                  if (value === undefined) setInternalEmoji(data.emoji);
+                  onSelect?.(data.emoji);
                   setIsOpen(false);
                 }}
                 previewConfig={{ showPreview: false }}

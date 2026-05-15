@@ -98,3 +98,37 @@ export const wishlistItemSchema: z.ZodType<WishlistItemInput, z.ZodTypeDef, unkn
   amount: money,
   details: detailsField
 });
+
+export type BudgetItemPatch = Partial<BudgetItemInput>;
+export type DebtItemPatch = Partial<DebtItemInput>;
+export type WishlistItemPatch = Partial<WishlistItemInput>;
+
+export const budgetItemPatchSchema: z.ZodType<BudgetItemPatch, z.ZodTypeDef, unknown> = z
+  .object({
+    name: nameField,
+    emoji: emojiField,
+    amount: money,
+    category: categoryField,
+    details: detailsField
+  })
+  .partial();
+
+export const debtItemPatchSchema: z.ZodType<DebtItemPatch, z.ZodTypeDef, unknown> = z
+  .object({
+    name: nameField,
+    emoji: emojiField,
+    amount: money,
+    interest_rate: optionalNonNegativeNumber,
+    tenure_months: optionalPositiveInteger,
+    details: detailsField
+  })
+  .partial();
+
+export const wishlistItemPatchSchema: z.ZodType<WishlistItemPatch, z.ZodTypeDef, unknown> = z
+  .object({
+    name: nameField,
+    emoji: emojiField,
+    amount: money,
+    details: detailsField
+  })
+  .partial();

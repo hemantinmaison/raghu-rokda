@@ -100,7 +100,12 @@ export function PlannerSection<T extends SectionItem>({
 
       {isAdding ? <form id={formId} onSubmit={handleCreateSubmit} /> : null}
 
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+      <DndContext
+        id={`dnd-${kind}`}
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+      >
         <SortableContext items={items.map((item) => item.id)} strategy={verticalListSortingStrategy}>
           <div className="overflow-x-auto">
             <table className="w-full min-w-[820px] table-fixed border-collapse text-sm">

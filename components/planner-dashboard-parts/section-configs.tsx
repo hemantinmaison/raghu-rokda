@@ -11,9 +11,12 @@ import {
 import {
   createBudgetItem,
   createDebtItem,
-  createWishlistItem
+  createWishlistItem,
+  updateBudgetItem,
+  updateDebtItem,
+  updateWishlistItem
 } from "@/app/actions/planner";
-import { formatMonthYear } from "@/lib/finance";
+import { formatCurrency, formatMonthYear } from "@/lib/finance";
 import type {
   DashboardBudgetItem,
   DashboardDebtItem,
@@ -21,14 +24,12 @@ import type {
   ForecastEntry,
   PlannerKind
 } from "@/lib/types";
+import { ForecastCell, PlaceholderCell } from "./table-cells";
 import {
-  AmountCell,
-  DetailsCell,
-  ForecastCell,
-  NameCell,
-  PlaceholderCell,
-  PropertyCell
-} from "./table-cells";
+  EditableNameCell,
+  EditableNumberCell,
+  EditableTextCell
+} from "./editable-cells";
 import { NewNameInput, NewNumberInput, NewTextInput } from "./new-item-inputs";
 import { CategoryCombobox } from "./category-combobox";
 import { BudgetCategoryCell } from "./budget-category-cell";
@@ -80,15 +81,31 @@ export const budgetConfig: SectionConfig<DashboardBudgetItem> = {
     <NewTextInput key="details" formId={formId} name="details" placeholder="Optional details" />
   ],
   renderCells: (item, { budgetCategories }) => [
-    <NameCell key="name" title={item.name} emoji={item.emoji} />,
+    <EditableNameCell
+      key="name"
+      name={item.name}
+      emoji={item.emoji}
+      onSave={(patch) => updateBudgetItem(item.id, patch)}
+    />,
     <BudgetCategoryCell
       key="category"
       itemId={item.id}
       value={item.category}
       options={budgetCategories}
     />,
-    <AmountCell key="amount" value={item.amount} />,
-    <DetailsCell key="details" details={item.details} />
+    <EditableNumberCell
+      key="amount"
+      value={item.amount}
+      required
+      align="right"
+      format={formatCurrency}
+      onSave={(amount) => updateBudgetItem(item.id, { amount: amount ?? undefined })}
+    />,
+    <EditableTextCell
+      key="details"
+      value={item.details}
+      onSave={(details) => updateBudgetItem(item.id, { details })}
+    />
   ]
 };
 
@@ -112,19 +129,42 @@ export const debtConfig: SectionConfig<DashboardDebtItem> = {
     <NewTextInput key="details" formId={formId} name="details" placeholder="Optional details" />
   ],
   renderCells: (item, { forecast }) => [
-    <NameCell key="name" title={item.name} emoji={item.emoji} />,
-    <AmountCell key="amount" value={item.amount} />,
-    <PropertyCell key="interest">
-      {item.interest_rate === null ? "—" : `${item.interest_rate}%`}
-    </PropertyCell>,
-    <PropertyCell key="tenure">
-      {item.tenure_months === null ? "—" : `${item.tenure_months} months`}
-    </PropertyCell>,
+    <EditableNameCell
+      key="name"
+      name={item.name}
+      emoji={item.emoji}
+      onSave={(patch) => updateDebtItem(item.id, patch)}
+    />,
+    <EditableNumberCell
+      key="amount"
+      value={item.amount}
+      required
+      align="right"
+      format={formatCurrency}
+      onSave={(amount) => updateDebtItem(item.id, { amount: amount ?? undefined })}
+    />,
+    <EditableNumberCell
+      key="interest"
+      value={item.interest_rate}
+      step="0.01"
+      format={(value) => `${value}%`}
+      onSave={(interest_rate) => updateDebtItem(item.id, { interest_rate })}
+    />,
+    <EditableNumberCell
+      key="tenure"
+      value={item.tenure_months}
+      format={(value) => `${value} ${value === 1 ? "month" : "months"}`}
+      onSave={(tenure_months) => updateDebtItem(item.id, { tenure_months })}
+    />,
     <ForecastCell
       key="forecast"
       value={forecast?.targetDate ? `Paid by ${formatMonthYear(forecast.targetDate)}` : null}
     />,
-    <DetailsCell key="details" details={item.details} />
+    <EditableTextCell
+      key="details"
+      value={item.details}
+      onSave={(details) => updateDebtItem(item.id, { details })}
+    />
   ]
 };
 
@@ -140,14 +180,30 @@ export const wishlistConfig: SectionConfig<DashboardWishlistItem> = {
     <NewTextInput key="details" formId={formId} name="details" placeholder="Optional details" />
   ],
   renderCells: (item, { forecast }) => [
-    <NameCell key="name" title={item.name} emoji={item.emoji} />,
-    <AmountCell key="amount" value={item.amount} />,
+    <EditableNameCell
+      key="name"
+      name={item.name}
+      emoji={item.emoji}
+      onSave={(patch) => updateWishlistItem(item.id, patch)}
+    />,
+    <EditableNumberCell
+      key="amount"
+      value={item.amount}
+      required
+      align="right"
+      format={formatCurrency}
+      onSave={(amount) => updateWishlistItem(item.id, { amount: amount ?? undefined })}
+    />,
     <ForecastCell
       key="forecast"
       value={
         forecast?.targetDate ? `Available by ${formatMonthYear(forecast.targetDate)}` : null
       }
     />,
-    <DetailsCell key="details" details={item.details} />
+    <EditableTextCell
+      key="details"
+      value={item.details}
+      onSave={(details) => updateWishlistItem(item.id, { details })}
+    />
   ]
 };

@@ -6,11 +6,14 @@ import { createClient } from "@/lib/supabase/server";
 import { parseOrThrow } from "@/lib/zod";
 import {
   budgetCategorySchema,
+  budgetItemPatchSchema,
   budgetItemSchema,
+  debtItemPatchSchema,
   debtItemSchema,
   plannerKindSchema,
   profileSchema,
   uuidSchema,
+  wishlistItemPatchSchema,
   wishlistItemSchema
 } from "@/lib/validation";
 import type { PlannerKind } from "@/lib/types";
@@ -78,6 +81,51 @@ export async function updateBudgetItemCategory(id: string, category: string) {
   const { error } = await supabase
     .from("budget_items")
     .update({ category: parsed.category })
+    .eq("id", itemId)
+    .eq("user_id", user.id);
+  throwIfError(error);
+  revalidatePath("/");
+}
+
+export async function updateBudgetItem(id: string, patch: unknown) {
+  const { supabase, user } = await requireUser();
+  const itemId = parseOrThrow(uuidSchema, id);
+  const parsed = parseOrThrow(budgetItemPatchSchema, patch);
+  if (Object.keys(parsed).length === 0) return;
+
+  const { error } = await supabase
+    .from("budget_items")
+    .update(parsed)
+    .eq("id", itemId)
+    .eq("user_id", user.id);
+  throwIfError(error);
+  revalidatePath("/");
+}
+
+export async function updateDebtItem(id: string, patch: unknown) {
+  const { supabase, user } = await requireUser();
+  const itemId = parseOrThrow(uuidSchema, id);
+  const parsed = parseOrThrow(debtItemPatchSchema, patch);
+  if (Object.keys(parsed).length === 0) return;
+
+  const { error } = await supabase
+    .from("debt_items")
+    .update(parsed)
+    .eq("id", itemId)
+    .eq("user_id", user.id);
+  throwIfError(error);
+  revalidatePath("/");
+}
+
+export async function updateWishlistItem(id: string, patch: unknown) {
+  const { supabase, user } = await requireUser();
+  const itemId = parseOrThrow(uuidSchema, id);
+  const parsed = parseOrThrow(wishlistItemPatchSchema, patch);
+  if (Object.keys(parsed).length === 0) return;
+
+  const { error } = await supabase
+    .from("wishlist_items")
+    .update(parsed)
     .eq("id", itemId)
     .eq("user_id", user.id);
   throwIfError(error);
