@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  budgetCategorySchema,
   budgetItemSchema,
   debtItemSchema,
   profileSchema,
@@ -35,6 +36,11 @@ describe("validation", () => {
 
     expect(budgetItemSchema.safeParse({ name: "", amount: 1, category: "x" }).success).toBe(false);
     expect(budgetItemSchema.safeParse({ name: "x", amount: 0, category: "x" }).success).toBe(false);
+  });
+
+  it("budgetCategorySchema trims and requires a category", () => {
+    expect(budgetCategorySchema.parse({ category: "  Food  " })).toEqual({ category: "Food" });
+    expect(budgetCategorySchema.safeParse({ category: "" }).success).toBe(false);
   });
 
   it("debtItemSchema treats blank/null/undefined optional fields as null", () => {

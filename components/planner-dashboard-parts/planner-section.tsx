@@ -35,7 +35,7 @@ type PlannerSectionProps<T extends SectionItem> = {
   onItemsChange: (items: T[]) => void;
   createAction: CreateAction;
   renderNewCells: (formId: string, ctx: SectionConfigContext) => ReactNode[];
-  renderCells: (item: T, ctx: { forecast?: ForecastEntry }) => ReactNode[];
+  renderCells: (item: T, ctx: { forecast?: ForecastEntry } & SectionConfigContext) => ReactNode[];
   forecastById: Map<string, ForecastEntry> | null;
   sectionContext: SectionConfigContext;
 };
@@ -103,7 +103,14 @@ export function PlannerSection<T extends SectionItem>({
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={items.map((item) => item.id)} strategy={verticalListSortingStrategy}>
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[820px] border-collapse text-sm">
+            <table className="w-full min-w-[820px] table-fixed border-collapse text-sm">
+              <colgroup>
+                <col style={{ width: 36 }} />
+                {headers.map((header) => (
+                  <col key={header.label} style={{ width: header.width }} />
+                ))}
+                <col style={{ width: 40 }} />
+              </colgroup>
               <thead className="bg-white text-[13px] font-normal text-ink-400">
                 <tr className="h-10 border-b border-line-faint">
                   <th className="w-9 px-2 py-2" aria-label="Reorder" />
@@ -131,7 +138,10 @@ export function PlannerSection<T extends SectionItem>({
                     kind={kind}
                     dragEnabled={dragEnabled}
                     headers={headers}
-                    cells={renderCells(item, { forecast: forecastById?.get(item.id) })}
+                    cells={renderCells(item, {
+                      ...sectionContext,
+                      forecast: forecastById?.get(item.id)
+                    })}
                   />
                 ))}
                 {isAdding ? (

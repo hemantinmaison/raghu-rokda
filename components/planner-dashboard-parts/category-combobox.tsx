@@ -9,9 +9,13 @@ type CategoryComboboxProps = {
   formId?: string;
   name: string;
   options: string[];
+  value?: string;
   defaultValue?: string;
   placeholder?: string;
   required?: boolean;
+  disabled?: boolean;
+  variant?: "default" | "compact";
+  onValueChange?: (value: string) => void;
 };
 
 const POPOVER_WIDTH = 260;
@@ -20,9 +24,13 @@ export function CategoryCombobox({
   formId,
   name,
   options,
+  value: controlledValue,
   defaultValue = "",
   placeholder = "Select or create",
-  required = false
+  required = false,
+  disabled = false,
+  variant = "default",
+  onValueChange
 }: CategoryComboboxProps) {
   const [value, setValue] = useState(defaultValue);
   const [query, setQuery] = useState("");
@@ -32,6 +40,8 @@ export function CategoryCombobox({
   const popoverRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const selectedValue = controlledValue ?? value;
+  const isCompact = variant === "compact";
   const normalizedQuery = query.trim();
   const filtered = useMemo(() => {
     if (normalizedQuery.length === 0) return options;
@@ -83,7 +93,8 @@ export function CategoryCombobox({
   }, [isOpen]);
 
   function commit(next: string) {
-    setValue(next);
+    if (controlledValue === undefined) setValue(next);
+    onValueChange?.(next);
     setQuery("");
     setIsOpen(false);
   }
@@ -98,22 +109,31 @@ export function CategoryCombobox({
 
   return (
     <>
-      <input type="hidden" form={formId} name={name} value={value} required={required} />
+      {formId ? (
+        <input type="hidden" form={formId} name={name} value={selectedValue} required={required} />
+      ) : null}
       <button
         ref={buttonRef}
         type="button"
+        disabled={disabled}
         onClick={() => {
           setIsOpen((open) => !open);
           setTimeout(() => inputRef.current?.focus(), 0);
         }}
-        className="focus-ring flex h-11 w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-row-hover"
+        className={`focus-ring flex min-w-0 items-center text-left text-sm hover:bg-row-hover disabled:cursor-not-allowed disabled:opacity-60 ${
+          isCompact
+            ? "h-7 max-w-full gap-1.5 rounded px-1.5 py-1"
+            : "h-11 w-full justify-between px-3 py-2"
+        }`}
       >
-        {value ? (
-          <CategoryTag value={value} />
-        ) : (
-          <span className="text-ink-100">{placeholder}</span>
-        )}
-        <ChevronDown className="size-4 text-ink-300" aria-hidden />
+        <span className="min-w-0">
+          {selectedValue ? (
+            <CategoryTag value={selectedValue} />
+          ) : (
+            <span className="text-ink-100">{placeholder}</span>
+          )}
+        </span>
+        <ChevronDown className="size-4 shrink-0 text-ink-300" aria-hidden />
       </button>
       {isOpen && position && typeof document !== "undefined"
         ? createPortal(

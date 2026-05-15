@@ -5,6 +5,7 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { parseOrThrow } from "@/lib/zod";
 import {
+  budgetCategorySchema,
   budgetItemSchema,
   debtItemSchema,
   plannerKindSchema,
@@ -65,6 +66,20 @@ export async function createBudgetItem(formData: FormData) {
     readFields(formData, ["name", "emoji", "amount", "category", "details"] as const)
   );
   const { error } = await supabase.from("budget_items").insert({ ...parsed, user_id: user.id });
+  throwIfError(error);
+  revalidatePath("/");
+}
+
+export async function updateBudgetItemCategory(id: string, category: string) {
+  const { supabase, user } = await requireUser();
+  const itemId = parseOrThrow(uuidSchema, id);
+  const parsed = parseOrThrow(budgetCategorySchema, { category });
+
+  const { error } = await supabase
+    .from("budget_items")
+    .update({ category: parsed.category })
+    .eq("id", itemId)
+    .eq("user_id", user.id);
   throwIfError(error);
   revalidatePath("/");
 }

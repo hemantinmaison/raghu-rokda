@@ -49,6 +49,9 @@ export type BudgetItemInput = {
   category: string;
   details: string | null;
 };
+export type BudgetCategoryInput = {
+  category: string;
+};
 export type DebtItemInput = {
   name: string;
   emoji: string | null;
@@ -74,6 +77,10 @@ export const budgetItemSchema: z.ZodType<BudgetItemInput, z.ZodTypeDef, unknown>
   amount: money,
   category: categoryField,
   details: detailsField
+});
+
+export const budgetCategorySchema: z.ZodType<BudgetCategoryInput, z.ZodTypeDef, unknown> = z.object({
+  category: categoryField
 });
 
 export const debtItemSchema: z.ZodType<DebtItemInput, z.ZodTypeDef, unknown> = z.object({

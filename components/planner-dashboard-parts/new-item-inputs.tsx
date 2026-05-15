@@ -17,6 +17,7 @@ export function NewNameInput({
         form={formId}
         className="focus-ring h-full w-full min-w-0 border-0 bg-transparent px-2 py-2 text-sm text-ink-900 placeholder:text-ink-100 focus:bg-white"
         name="name"
+        size={1}
         placeholder={placeholder}
         required
       />
@@ -40,6 +41,7 @@ export function NewTextInput({
       form={formId}
       className={inputClass}
       name={name}
+      size={1}
       placeholder={placeholder}
       required={required}
     />
@@ -67,6 +69,7 @@ export function NewNumberInput({
       className={`${inputClass} tabular-nums ${align === "right" ? "text-right" : ""}`}
       name={name}
       type="number"
+      size={1}
       min={required ? "1" : "0"}
       step={step}
       placeholder={placeholder}

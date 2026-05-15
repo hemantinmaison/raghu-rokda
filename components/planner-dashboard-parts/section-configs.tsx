@@ -29,9 +29,9 @@ import {
   PlaceholderCell,
   PropertyCell
 } from "./table-cells";
-import { CategoryTag } from "./category-tag";
 import { NewNameInput, NewNumberInput, NewTextInput } from "./new-item-inputs";
 import { CategoryCombobox } from "./category-combobox";
+import { BudgetCategoryCell } from "./budget-category-cell";
 import type { CreateAction, SectionConfigContext, TableHeader } from "./types";
 
 type SectionItem = DashboardBudgetItem | DashboardDebtItem | DashboardWishlistItem;
@@ -42,30 +42,30 @@ export type SectionConfig<T extends SectionItem> = {
   headers: TableHeader[];
   createAction: CreateAction;
   renderNewCells: (formId: string, ctx: SectionConfigContext) => ReactNode[];
-  renderCells: (item: T, ctx: { forecast?: ForecastEntry }) => ReactNode[];
+  renderCells: (item: T, ctx: { forecast?: ForecastEntry } & SectionConfigContext) => ReactNode[];
 };
 
 const BUDGET_HEADERS: TableHeader[] = [
-  { label: "Name", icon: <CaseSensitive className="size-4" /> },
-  { label: "Type", icon: <ChevronDown className="size-4" /> },
-  { label: "Amount", icon: <IndianRupee className="size-4" />, align: "right" },
-  { label: "Details", icon: <FileText className="size-4" /> }
+  { label: "Name", icon: <CaseSensitive className="size-4" />, width: "30%" },
+  { label: "Type", icon: <ChevronDown className="size-4" />, width: "18%" },
+  { label: "Amount", icon: <IndianRupee className="size-4" />, align: "right", width: "14%" },
+  { label: "Details", icon: <FileText className="size-4" />, width: "28%" }
 ];
 
 const DEBT_HEADERS: TableHeader[] = [
-  { label: "Name", icon: <CaseSensitive className="size-4" /> },
-  { label: "Amount", icon: <IndianRupee className="size-4" />, align: "right" },
-  { label: "Interest", icon: <CircleDot className="size-4" /> },
-  { label: "Tenure", icon: <Hash className="size-4" /> },
-  { label: "Forecast", icon: <CalendarCheck className="size-4" /> },
-  { label: "Details", icon: <FileText className="size-4" /> }
+  { label: "Name", icon: <CaseSensitive className="size-4" />, width: "20%" },
+  { label: "Amount", icon: <IndianRupee className="size-4" />, align: "right", width: "13%" },
+  { label: "Interest", icon: <CircleDot className="size-4" />, width: "11%" },
+  { label: "Tenure", icon: <Hash className="size-4" />, width: "12%" },
+  { label: "Forecast", icon: <CalendarCheck className="size-4" />, width: "17%" },
+  { label: "Details", icon: <FileText className="size-4" />, width: "17%" }
 ];
 
 const WISHLIST_HEADERS: TableHeader[] = [
-  { label: "Name", icon: <CaseSensitive className="size-4" /> },
-  { label: "Amount", icon: <IndianRupee className="size-4" />, align: "right" },
-  { label: "Forecast", icon: <CalendarCheck className="size-4" /> },
-  { label: "Details", icon: <FileText className="size-4" /> }
+  { label: "Name", icon: <CaseSensitive className="size-4" />, width: "30%" },
+  { label: "Amount", icon: <IndianRupee className="size-4" />, align: "right", width: "16%" },
+  { label: "Forecast", icon: <CalendarCheck className="size-4" />, width: "20%" },
+  { label: "Details", icon: <FileText className="size-4" />, width: "24%" }
 ];
 
 export const budgetConfig: SectionConfig<DashboardBudgetItem> = {
@@ -79,9 +79,14 @@ export const budgetConfig: SectionConfig<DashboardBudgetItem> = {
     <NewNumberInput key="amount" formId={formId} name="amount" placeholder="0" required align="right" />,
     <NewTextInput key="details" formId={formId} name="details" placeholder="Optional details" />
   ],
-  renderCells: (item) => [
+  renderCells: (item, { budgetCategories }) => [
     <NameCell key="name" title={item.name} emoji={item.emoji} />,
-    <CategoryTag key="category" value={item.category} />,
+    <BudgetCategoryCell
+      key="category"
+      itemId={item.id}
+      value={item.category}
+      options={budgetCategories}
+    />,
     <AmountCell key="amount" value={item.amount} />,
     <DetailsCell key="details" details={item.details} />
   ]

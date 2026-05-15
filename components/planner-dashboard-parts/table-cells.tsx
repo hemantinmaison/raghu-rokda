@@ -45,5 +45,5 @@ export function DetailsCell({ details }: { details: string | null }) {
 }
 
 export function PlaceholderCell({ children }: { children: ReactNode }) {
-  return <span className="flex h-14 items-center px-4 text-sm text-ink-200">{children}</span>;
+  return <span className="flex h-11 min-w-0 items-center truncate px-3 text-sm text-ink-200">{children}</span>;
 }
