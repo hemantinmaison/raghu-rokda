@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import type { FormEvent, ReactNode } from "react";
-import { GripVertical, Plus, Save, SlidersHorizontal, Trash2, X } from "lucide-react";
+import { GripVertical, Plus, Save, Trash2, X } from "lucide-react";
 import {
   closestCenter,
   DndContext,
@@ -33,7 +33,6 @@ type PlannerSectionProps<T extends SectionItem> = {
   items: T[];
   headers: TableHeader[];
   onItemsChange: (items: T[]) => void;
-  onSortAmount: () => void;
   createAction: CreateAction;
   renderNewCells: (formId: string, ctx: SectionConfigContext) => ReactNode[];
   renderCells: (item: T, ctx: { forecast?: ForecastEntry }) => ReactNode[];
@@ -47,7 +46,6 @@ export function PlannerSection<T extends SectionItem>({
   items,
   headers,
   onItemsChange,
-  onSortAmount,
   createAction,
   renderNewCells,
   renderCells,
@@ -93,22 +91,11 @@ export function PlannerSection<T extends SectionItem>({
 
   return (
     <section className="rounded-md border border-line-faint bg-white shadow-sm">
-      <div className="flex flex-col gap-3 border-b border-line-faint p-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h3 className="text-xl font-semibold">{title}</h3>
-          <p className="text-sm text-ink-500">
-            {items.length} item{items.length === 1 ? "" : "s"}
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={onSortAmount}
-          disabled={items.length < 2}
-          className="focus-ring inline-flex items-center gap-2 rounded-md border border-line px-3 py-2 text-sm font-medium hover:bg-canvas disabled:opacity-40"
-        >
-          <SlidersHorizontal className="size-4" />
-          Amount
-        </button>
+      <div className="flex items-baseline justify-between border-b border-line-faint p-4">
+        <h3 className="text-xl font-semibold">{title}</h3>
+        <p className="text-sm text-ink-400">
+          {items.length} item{items.length === 1 ? "" : "s"}
+        </p>
       </div>
 
       {isAdding ? <form id={formId} onSubmit={handleCreateSubmit} /> : null}

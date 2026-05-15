@@ -11,14 +11,22 @@ type AppShellProps = {
 export function AppShell({ children, userEmail, monthlySalary }: AppShellProps) {
   return (
     <main className="min-h-screen bg-canvas text-ink-900">
-      <header className="border-b border-line bg-white">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4">
-          <h1 className="text-2xl font-semibold">Raghu Rokda</h1>
+      <header className="sticky top-0 z-20 border-b border-line-faint bg-white/85 backdrop-blur">
+        <div className="mx-auto flex h-12 max-w-7xl items-center justify-between px-5">
+          <div className="flex items-center gap-2">
+            <span
+              aria-hidden
+              className="inline-flex size-6 items-center justify-center rounded-md bg-ink-900 text-[13px] font-semibold text-white"
+            >
+              R
+            </span>
+            <span className="text-sm font-medium text-ink-900">Raghu Rokda</span>
+          </div>
           {userEmail ? (
             <HeaderProfile userEmail={userEmail} monthlySalary={monthlySalary ?? 0} />
           ) : (
             <form action={signOut}>
-              <button className="focus-ring rounded-md border border-line px-4 py-2 text-sm font-semibold hover:bg-canvas">
+              <button className="focus-ring rounded-md border border-line px-3 py-1.5 text-sm hover:bg-canvas">
                 Sign out
               </button>
             </form>
@@ -32,8 +40,8 @@ export function AppShell({ children, userEmail, monthlySalary }: AppShellProps) 
 
 export function DashboardLoadError({ message }: { message: string }) {
   return (
-    <section className="mx-auto max-w-3xl px-5 py-8">
-      <div className="rounded-lg border border-danger-200 bg-danger-50 p-4 text-danger-900">
+    <section className="mx-auto max-w-2xl px-5 py-12">
+      <div className="rounded-lg border border-danger-200 bg-danger-50 p-5 text-danger-900">
         <h2 className="text-lg font-semibold">Could not load planner data</h2>
         <p className="mt-2 text-sm leading-6">{message}</p>
         <p className="mt-3 text-sm leading-6">

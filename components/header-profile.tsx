@@ -38,7 +38,7 @@ export function HeaderProfile({ userEmail, monthlySalary }: HeaderProfileProps) 
         onClick={() => setIsOpen((value) => !value)}
         aria-haspopup="menu"
         aria-expanded={isOpen}
-        className="focus-ring flex size-10 items-center justify-center rounded-full bg-teal-700 font-semibold text-white hover:bg-teal-800"
+        className="focus-ring flex size-7 items-center justify-center rounded-full bg-ink-900 text-xs font-semibold text-white hover:bg-ink-700"
         aria-label="Open profile menu"
       >
         {initial}
@@ -47,7 +47,7 @@ export function HeaderProfile({ userEmail, monthlySalary }: HeaderProfileProps) 
       {isOpen ? (
         <div
           role="menu"
-          className="absolute right-0 z-20 mt-2 w-80 rounded-lg border border-line bg-white p-4 shadow-lg"
+          className="absolute right-0 z-30 mt-2 w-72 rounded-lg border border-line bg-white p-4 shadow-lg"
         >
           <div className="flex items-center gap-2 border-b border-line-faint pb-3 text-sm">
             <UserRound className="size-4 text-ink-500" />
@@ -57,10 +57,10 @@ export function HeaderProfile({ userEmail, monthlySalary }: HeaderProfileProps) 
           </div>
 
           <form action={updateSalary} className="grid gap-2 pt-3">
-            <label className="grid gap-1 text-sm font-medium text-ink-700">
+            <label className="grid gap-1 text-xs font-medium uppercase tracking-wide text-ink-400">
               Monthly salary
               <input
-                className="focus-ring rounded-md border border-line px-3 py-2"
+                className="focus-ring rounded-md border border-line px-3 py-2 text-sm"
                 name="monthly_salary"
                 type="number"
                 min="0"
@@ -70,17 +70,17 @@ export function HeaderProfile({ userEmail, monthlySalary }: HeaderProfileProps) 
             </label>
             <button
               type="submit"
-              className="focus-ring inline-flex items-center justify-center gap-2 rounded-md bg-teal-700 px-3 py-2 text-sm font-semibold text-white hover:bg-teal-800"
+              className="focus-ring inline-flex items-center justify-center gap-2 rounded-md bg-ink-900 px-3 py-2 text-sm font-medium text-white hover:bg-ink-700"
             >
               <Save className="size-4" />
-              Save salary
+              Save
             </button>
           </form>
 
           <form action={signOut} className="pt-3">
             <button
               type="submit"
-              className="focus-ring inline-flex w-full items-center justify-center gap-2 rounded-md border border-line px-3 py-2 text-sm font-semibold hover:bg-canvas"
+              className="focus-ring inline-flex w-full items-center justify-center gap-2 rounded-md border border-line px-3 py-2 text-sm hover:bg-canvas"
             >
               <LogOut className="size-4" />
               Sign out

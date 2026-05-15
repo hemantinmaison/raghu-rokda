@@ -84,19 +84,6 @@ export function PlannerDashboard({
     });
   }
 
-  function applyAmountSort(kind: PlannerKind) {
-    if (kind === "budget") {
-      const sorted = [...budgetView].sort((a, b) => b.amount - a.amount);
-      commitReorder(kind, setBudgetOrder, sorted);
-    } else if (kind === "debt") {
-      const sorted = [...debtView].sort((a, b) => b.amount - a.amount);
-      commitReorder(kind, setDebtOrder, sorted);
-    } else {
-      const sorted = [...wishlistView].sort((a, b) => b.amount - a.amount);
-      commitReorder(kind, setWishlistOrder, sorted);
-    }
-  }
-
   const tabCounts: Record<PlannerKind, number> = {
     budget: budgetView.length,
     debt: debtView.length,
@@ -104,35 +91,49 @@ export function PlannerDashboard({
   };
 
   return (
-    <div className="mx-auto grid max-w-7xl gap-6 px-5 py-6">
+    <div className="mx-auto grid max-w-7xl gap-4 px-5 py-6">
       <div className="grid gap-4">
-        <div role="tablist" aria-label="Planner sections" className="flex justify-center">
-          <div className="inline-flex max-w-full overflow-x-auto rounded-md border border-line bg-white p-1 shadow-sm">
-            {TABS.map(({ kind, label }) => {
-              const isActive = activeTab === kind;
-              return (
-                <button
-                  key={kind}
-                  role="tab"
-                  type="button"
-                  aria-selected={isActive}
-                  aria-controls={`panel-${kind}`}
-                  id={`tab-${kind}`}
-                  onClick={() => setActiveTab(kind)}
-                  className={`focus-ring whitespace-nowrap rounded px-4 py-2 text-sm font-medium ${
-                    isActive
-                      ? "bg-ink-900 text-white"
-                      : "text-ink-500 hover:bg-canvas hover:text-ink-900"
-                  }`}
-                >
+        <div
+          role="tablist"
+          aria-label="Planner sections"
+          className="flex gap-1 overflow-x-auto border-b border-line-faint"
+        >
+          {TABS.map(({ kind, label }) => {
+            const isActive = activeTab === kind;
+            return (
+              <button
+                key={kind}
+                role="tab"
+                type="button"
+                aria-selected={isActive}
+                aria-controls={`panel-${kind}`}
+                id={`tab-${kind}`}
+                onClick={() => setActiveTab(kind)}
+                className={`focus-ring relative whitespace-nowrap px-3 py-2 text-sm transition-colors ${
+                  isActive
+                    ? "text-ink-900"
+                    : "text-ink-400 hover:text-ink-700"
+                }`}
+              >
+                <span className="inline-flex items-center gap-2">
                   {label}
-                  <span className={isActive ? "ml-2 text-white/70" : "ml-2 text-ink-300"}>
+                  <span
+                    className={`rounded px-1.5 py-0.5 text-xs tabular-nums ${
+                      isActive ? "bg-canvas text-ink-700" : "text-ink-300"
+                    }`}
+                  >
                     {tabCounts[kind]}
                   </span>
-                </button>
-              );
-            })}
-          </div>
+                </span>
+                {isActive ? (
+                  <span
+                    aria-hidden
+                    className="absolute inset-x-0 -bottom-px h-0.5 bg-ink-900"
+                  />
+                ) : null}
+              </button>
+            );
+          })}
         </div>
 
         <div role="tabpanel" id={`panel-${activeTab}`} aria-labelledby={`tab-${activeTab}`}>
@@ -141,7 +142,6 @@ export function PlannerDashboard({
               {...budgetConfig}
               items={budgetView}
               onItemsChange={(next) => commitReorder("budget", setBudgetOrder, next)}
-              onSortAmount={() => applyAmountSort("budget")}
               forecastById={null}
               sectionContext={sectionContext}
             />
@@ -150,7 +150,6 @@ export function PlannerDashboard({
               {...debtConfig}
               items={debtView}
               onItemsChange={(next) => commitReorder("debt", setDebtOrder, next)}
-              onSortAmount={() => applyAmountSort("debt")}
               forecastById={forecast.debtForecastById}
               sectionContext={sectionContext}
             />
@@ -159,7 +158,6 @@ export function PlannerDashboard({
               {...wishlistConfig}
               items={wishlistView}
               onItemsChange={(next) => commitReorder("wishlist", setWishlistOrder, next)}
-              onSortAmount={() => applyAmountSort("wishlist")}
               forecastById={forecast.wishlistForecastById}
               sectionContext={sectionContext}
             />
