@@ -1,12 +1,12 @@
 import type { ReactNode } from "react";
 import {
   CalendarCheck,
+  CaseSensitive,
+  ChevronDown,
   CircleDot,
   FileText,
   Hash,
-  IndianRupee,
-  Tag,
-  Type
+  IndianRupee
 } from "lucide-react";
 import {
   createBudgetItem,
@@ -29,6 +29,7 @@ import {
   PlaceholderCell,
   PropertyCell
 } from "./table-cells";
+import { CategoryTag } from "./category-tag";
 import { NewNameInput, NewNumberInput, NewTextInput } from "./new-item-inputs";
 import { CategoryCombobox } from "./category-combobox";
 import type { CreateAction, SectionConfigContext, TableHeader } from "./types";
@@ -45,14 +46,14 @@ export type SectionConfig<T extends SectionItem> = {
 };
 
 const BUDGET_HEADERS: TableHeader[] = [
-  { label: "Name", icon: <Type className="size-4" /> },
-  { label: "Type / category", icon: <Tag className="size-4" /> },
+  { label: "Name", icon: <CaseSensitive className="size-4" /> },
+  { label: "Type", icon: <ChevronDown className="size-4" /> },
   { label: "Amount", icon: <IndianRupee className="size-4" />, align: "right" },
   { label: "Details", icon: <FileText className="size-4" /> }
 ];
 
 const DEBT_HEADERS: TableHeader[] = [
-  { label: "Name", icon: <Type className="size-4" /> },
+  { label: "Name", icon: <CaseSensitive className="size-4" /> },
   { label: "Amount", icon: <IndianRupee className="size-4" />, align: "right" },
   { label: "Interest", icon: <CircleDot className="size-4" /> },
   { label: "Tenure", icon: <Hash className="size-4" /> },
@@ -61,7 +62,7 @@ const DEBT_HEADERS: TableHeader[] = [
 ];
 
 const WISHLIST_HEADERS: TableHeader[] = [
-  { label: "Name", icon: <Type className="size-4" /> },
+  { label: "Name", icon: <CaseSensitive className="size-4" /> },
   { label: "Amount", icon: <IndianRupee className="size-4" />, align: "right" },
   { label: "Forecast", icon: <CalendarCheck className="size-4" /> },
   { label: "Details", icon: <FileText className="size-4" /> }
@@ -80,7 +81,7 @@ export const budgetConfig: SectionConfig<DashboardBudgetItem> = {
   ],
   renderCells: (item) => [
     <NameCell key="name" title={item.name} emoji={item.emoji} />,
-    <PropertyCell key="category">{item.category}</PropertyCell>,
+    <CategoryTag key="category" value={item.category} />,
     <AmountCell key="amount" value={item.amount} />,
     <DetailsCell key="details" details={item.details} />
   ]

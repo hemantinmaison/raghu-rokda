@@ -1,7 +1,7 @@
 import { EmojiPickerButton } from "./emoji-picker-button";
 
 const inputClass =
-  "focus-ring h-14 w-full min-w-0 border-0 bg-transparent px-4 py-3 text-ink-700 placeholder:text-ink-100 hover:bg-row-hover focus:bg-white";
+  "focus-ring h-11 w-full min-w-0 border-0 bg-transparent px-3 py-2 text-sm text-ink-900 placeholder:text-ink-100 hover:bg-row-hover focus:bg-white";
 
 export function NewNameInput({
   formId,
@@ -11,11 +11,11 @@ export function NewNameInput({
   placeholder: string;
 }) {
   return (
-    <div className="flex h-14 items-center gap-1 pl-2 pr-1 hover:bg-row-hover">
+    <div className="flex h-11 items-center gap-1 pl-2 pr-1 hover:bg-row-hover">
       <EmojiPickerButton formId={formId} name="emoji" />
       <input
         form={formId}
-        className="focus-ring h-full w-full min-w-0 border-0 bg-transparent px-2 py-3 text-ink-700 placeholder:text-ink-100 focus:bg-white"
+        className="focus-ring h-full w-full min-w-0 border-0 bg-transparent px-2 py-2 text-sm text-ink-900 placeholder:text-ink-100 focus:bg-white"
         name="name"
         placeholder={placeholder}
         required

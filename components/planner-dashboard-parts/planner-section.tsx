@@ -92,7 +92,7 @@ export function PlannerSection<T extends SectionItem>({
   }
 
   return (
-    <section className="overflow-hidden rounded-md border border-line-faint bg-white shadow-sm">
+    <section className="rounded-md border border-line-faint bg-white shadow-sm">
       <div className="flex flex-col gap-3 border-b border-line-faint p-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h3 className="text-xl font-semibold">{title}</h3>
@@ -104,7 +104,7 @@ export function PlannerSection<T extends SectionItem>({
           type="button"
           onClick={onSortAmount}
           disabled={items.length < 2}
-          className="focus-ring inline-flex items-center gap-2 rounded-md border border-line px-3 py-2 text-sm font-semibold hover:bg-canvas disabled:opacity-40"
+          className="focus-ring inline-flex items-center gap-2 rounded-md border border-line px-3 py-2 text-sm font-medium hover:bg-canvas disabled:opacity-40"
         >
           <SlidersHorizontal className="size-4" />
           Amount
@@ -116,24 +116,24 @@ export function PlannerSection<T extends SectionItem>({
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={items.map((item) => item.id)} strategy={verticalListSortingStrategy}>
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[820px] border-collapse text-[15px]">
-              <thead className="bg-white font-medium text-ink-400">
-                <tr className="h-12 border-b border-line-faint">
-                  <th className="w-10 px-2 py-2" aria-label="Reorder" />
+            <table className="w-full min-w-[820px] border-collapse text-sm">
+              <thead className="bg-white text-[13px] font-normal text-ink-400">
+                <tr className="h-10 border-b border-line-faint">
+                  <th className="w-9 px-2 py-2" aria-label="Reorder" />
                   {headers.map((header) => (
                     <th
                       key={header.label}
-                      className={`border-r border-line-faint px-4 py-2 font-medium last:border-r-0 ${
+                      className={`border-r border-line-faint px-3 py-2 font-normal last:border-r-0 ${
                         header.align === "right" ? "text-right" : "text-left"
                       }`}
                     >
-                      <span className="inline-flex items-center gap-2">
+                      <span className="inline-flex items-center gap-1.5">
                         <span className="text-[#a29d98]">{header.icon}</span>
                         {header.label}
                       </span>
                     </th>
                   ))}
-                  <th className="w-12 px-2 py-2" aria-label="Actions" />
+                  <th className="w-10 px-2 py-2" aria-label="Actions" />
                 </tr>
               </thead>
               <tbody>
@@ -167,12 +167,12 @@ export function PlannerSection<T extends SectionItem>({
               </tbody>
               {items.length > 0 && amountColumnIndex >= 0 ? (
                 <tfoot>
-                  <tr className="h-14 border-t border-line bg-canvas font-semibold">
+                  <tr className="h-11 border-t border-line-faint bg-canvas font-medium">
                     <td className="px-2 py-2" />
                     {headers.map((header, index) => (
                       <td
                         key={header.label}
-                        className={`border-r border-line-soft px-4 py-3 align-middle last:border-r-0 ${
+                        className={`border-r border-line-soft px-3 py-2 align-middle last:border-r-0 ${
                           header.align === "right" ? "text-right" : ""
                         }`}
                       >
@@ -223,41 +223,41 @@ function SortableRow({
     <tr
       ref={setNodeRef}
       style={style}
-      className={`group h-14 border-b border-line-soft bg-white last:border-b-0 hover:bg-row-hover ${
+      className={`group h-11 border-b border-line-soft bg-white last:border-b-0 hover:bg-row-hover ${
         isDragging ? "shadow-lg" : ""
       }`}
     >
-      <td className="px-2 py-2 align-top">
+      <td className="px-2 py-2 align-middle">
         {dragEnabled ? (
           <button
             type="button"
-            className="focus-ring rounded p-1 text-ink-300 opacity-70 hover:bg-brand-50 hover:text-ink-900 group-hover:opacity-100"
+            className="focus-ring rounded p-1 text-ink-300 opacity-0 transition-opacity hover:bg-canvas hover:text-ink-700 focus-visible:opacity-100 group-hover:opacity-100"
             aria-label="Drag to reorder"
             {...attributes}
             {...listeners}
           >
-            <GripVertical className="size-5" />
+            <GripVertical className="size-4" />
           </button>
         ) : null}
       </td>
       {cells.map((cell, index) => (
         <td
           key={index}
-          className={`max-w-[340px] border-r border-line-soft px-4 py-3 align-middle last:border-r-0 ${
+          className={`max-w-[340px] border-r border-line-soft px-3 py-2 align-middle last:border-r-0 ${
             headers[index]?.align === "right" ? "text-right" : ""
           }`}
         >
           {cell}
         </td>
       ))}
-      <td className="px-2 py-2 text-right align-top">
+      <td className="px-2 py-2 text-right align-middle">
         <button
           type="button"
           onClick={() => startTransition(() => deleteItem(kind, id))}
-          className="focus-ring rounded p-1 text-ink-300 hover:bg-danger-50 hover:text-danger-700"
+          className="focus-ring rounded p-1 text-ink-300 opacity-0 transition-opacity hover:bg-danger-50 hover:text-danger-700 focus-visible:opacity-100 group-hover:opacity-100"
           aria-label="Delete item"
         >
-          <Trash2 className="size-5" />
+          <Trash2 className="size-4" />
         </button>
       </td>
     </tr>
@@ -266,15 +266,15 @@ function SortableRow({
 
 function NewItemButtonRow({ columnCount, onClick }: { columnCount: number; onClick: () => void }) {
   return (
-    <tr className="h-14 border-b border-line-soft bg-white hover:bg-row-hover">
-      <td colSpan={columnCount + 2} className="px-5 py-3">
+    <tr className="h-11 border-b border-line-soft bg-white hover:bg-row-hover">
+      <td colSpan={columnCount + 2} className="px-3 py-2">
         <button
           type="button"
           onClick={onClick}
-          className="focus-ring inline-flex items-center gap-3 rounded px-2 py-1 text-xl font-medium text-ink-200 hover:text-[#5f5a55]"
+          className="focus-ring inline-flex items-center gap-2 rounded px-2 py-1 text-sm text-ink-300 hover:text-ink-700"
         >
-          <Plus className="size-5" />
-          New item
+          <Plus className="size-4" />
+          New
         </button>
       </td>
     </tr>
@@ -296,9 +296,9 @@ function NewItemEditRow({
 }) {
   return (
     <>
-      <tr className="h-14 border-b border-line-soft bg-white">
+      <tr className="h-11 border-b border-line-soft bg-white">
         <td className="px-2 py-2 align-middle text-ink-100">
-          <Plus className="mx-auto size-5" />
+          <Plus className="mx-auto size-4" />
         </td>
         {cells.map((cell, index) => (
           <td

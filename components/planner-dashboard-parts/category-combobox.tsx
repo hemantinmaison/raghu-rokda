@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown, Plus } from "lucide-react";
+import { CategoryTag } from "./category-tag";
 
 type CategoryComboboxProps = {
   formId?: string;
@@ -77,12 +78,10 @@ export function CategoryCombobox({
           setIsOpen((open) => !open);
           setTimeout(() => inputRef.current?.focus(), 0);
         }}
-        className="focus-ring flex h-14 w-full items-center justify-between px-4 py-3 text-left hover:bg-row-hover"
+        className="focus-ring flex h-11 w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-row-hover"
       >
         {value ? (
-          <span className="inline-flex rounded bg-brand-50 px-2 py-1 text-xs font-medium text-teal-900">
-            {value}
-          </span>
+          <CategoryTag value={value} />
         ) : (
           <span className="text-ink-100">{placeholder}</span>
         )}
@@ -108,9 +107,7 @@ export function CategoryCombobox({
                   onClick={() => commit(option)}
                   className="flex w-full items-center px-3 py-2 text-left hover:bg-canvas"
                 >
-                  <span className="inline-flex rounded bg-brand-50 px-2 py-1 text-xs font-medium text-teal-900">
-                    {option}
-                  </span>
+                  <CategoryTag value={option} />
                 </button>
               </li>
             ))}

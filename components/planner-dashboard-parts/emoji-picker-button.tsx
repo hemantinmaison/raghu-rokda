@@ -1,10 +1,15 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Smile } from "lucide-react";
 
 const EmojiPicker = dynamic(() => import("emoji-picker-react"), { ssr: false });
+
+const PICKER_WIDTH = 320;
+const PICKER_HEIGHT = 380;
+const GAP = 6;
 
 type EmojiPickerButtonProps = {
   formId?: string;
@@ -21,12 +26,35 @@ export function EmojiPickerButton({
 }: EmojiPickerButtonProps) {
   const [emoji, setEmoji] = useState<string | null>(defaultValue ?? null);
   const [isOpen, setIsOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [position, setPosition] = useState<{ top: number; left: number } | null>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const popoverRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    if (!isOpen || !buttonRef.current) return;
+    function place() {
+      const rect = buttonRef.current!.getBoundingClientRect();
+      const top = Math.max(8, rect.top - PICKER_HEIGHT - GAP);
+      const maxLeft = window.innerWidth - PICKER_WIDTH - 8;
+      const left = Math.min(Math.max(8, rect.left), maxLeft);
+      setPosition({ top, left });
+    }
+    place();
+    window.addEventListener("resize", place);
+    window.addEventListener("scroll", place, true);
+    return () => {
+      window.removeEventListener("resize", place);
+      window.removeEventListener("scroll", place, true);
+    };
+  }, [isOpen]);
 
   useEffect(() => {
     if (!isOpen) return;
     function handleClick(event: MouseEvent) {
-      if (!containerRef.current?.contains(event.target as Node)) setIsOpen(false);
+      const target = event.target as Node;
+      if (buttonRef.current?.contains(target)) return;
+      if (popoverRef.current?.contains(target)) return;
+      setIsOpen(false);
     }
     function handleKey(event: KeyboardEvent) {
       if (event.key === "Escape") setIsOpen(false);
@@ -40,9 +68,10 @@ export function EmojiPickerButton({
   }, [isOpen]);
 
   return (
-    <div ref={containerRef} className="relative inline-flex">
+    <>
       <input type="hidden" form={formId} name={name} value={emoji ?? ""} />
       <button
+        ref={buttonRef}
         type="button"
         aria-label={ariaLabel}
         onClick={() => setIsOpen((value) => !value)}
@@ -54,22 +83,29 @@ export function EmojiPickerButton({
           <Smile className="size-4 text-ink-300" aria-hidden />
         )}
       </button>
-      {isOpen ? (
-        <div className="absolute bottom-full left-0 z-50 mb-1 overflow-hidden rounded-lg border border-line bg-white shadow-lg">
-          <EmojiPicker
-            width={320}
-            height={380}
-            onEmojiClick={(data) => {
-              setEmoji(data.emoji);
-              setIsOpen(false);
-            }}
-            previewConfig={{ showPreview: false }}
-            skinTonesDisabled
-            searchPlaceholder="Search emoji"
-            lazyLoadEmojis
-          />
-        </div>
-      ) : null}
-    </div>
+      {isOpen && position && typeof document !== "undefined"
+        ? createPortal(
+            <div
+              ref={popoverRef}
+              style={{ position: "fixed", top: position.top, left: position.left, zIndex: 1000 }}
+              className="overflow-hidden rounded-lg border border-line bg-white shadow-lg"
+            >
+              <EmojiPicker
+                width={PICKER_WIDTH}
+                height={PICKER_HEIGHT}
+                onEmojiClick={(data) => {
+                  setEmoji(data.emoji);
+                  setIsOpen(false);
+                }}
+                previewConfig={{ showPreview: false }}
+                skinTonesDisabled
+                searchPlaceholder="Search emoji"
+                lazyLoadEmojis
+              />
+            </div>,
+            document.body
+          )
+        : null}
+    </>
   );
 }
