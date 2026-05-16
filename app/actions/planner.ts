@@ -47,6 +47,17 @@ function throwIfError(error: PostgrestError | null) {
   if (error) throw new Error(error.message);
 }
 
+const DEFAULT_EMOJIS: Record<PlannerKind, readonly string[]> = {
+  budget: ["🏠", "🛒", "🧾", "💡", "🍚", "🥛", "🚿", "🪔", "🧺", "🍎", "🚌", "📱", "🧴", "🧹", "⚡", "🍳"],
+  debt: ["💳", "🏦", "💸", "📉", "🧾", "💰", "📊", "🤝", "⏳", "🔁", "📋", "🪙"],
+  wishlist: ["🎁", "✨", "🛍️", "🎧", "📷", "💻", "🚲", "⌚", "🪑", "🏖️", "🎮", "👟"]
+};
+
+function randomEmoji(kind: PlannerKind) {
+  const pool = DEFAULT_EMOJIS[kind];
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
 async function nextSortOrder(supabase: Supabase, table: AnyTable, userId: string) {
   const { data, error } = await supabase
     .from(table)
@@ -83,7 +94,12 @@ export async function createBudgetItem(formData: FormData) {
   const sort_order = await nextSortOrder(supabase, "budget_items", user.id);
   const { error } = await supabase
     .from("budget_items")
-    .insert({ ...parsed, user_id: user.id, sort_order });
+    .insert({
+      ...parsed,
+      emoji: parsed.emoji ?? randomEmoji("budget"),
+      user_id: user.id,
+      sort_order
+    });
   throwIfError(error);
   revalidatePath("/");
 }
@@ -159,7 +175,12 @@ export async function createDebtItem(formData: FormData) {
   const sort_order = await nextSortOrder(supabase, "debt_items", user.id);
   const { error } = await supabase
     .from("debt_items")
-    .insert({ ...parsed, user_id: user.id, sort_order });
+    .insert({
+      ...parsed,
+      emoji: parsed.emoji ?? randomEmoji("debt"),
+      user_id: user.id,
+      sort_order
+    });
   throwIfError(error);
   revalidatePath("/");
 }
@@ -173,7 +194,12 @@ export async function createWishlistItem(formData: FormData) {
   const sort_order = await nextSortOrder(supabase, "wishlist_items", user.id);
   const { error } = await supabase
     .from("wishlist_items")
-    .insert({ ...parsed, user_id: user.id, sort_order });
+    .insert({
+      ...parsed,
+      emoji: parsed.emoji ?? randomEmoji("wishlist"),
+      user_id: user.id,
+      sort_order
+    });
   throwIfError(error);
   revalidatePath("/");
 }
