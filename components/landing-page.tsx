@@ -79,7 +79,7 @@ export function LandingPage() {
             aria-hidden
             className="flex size-9 items-center justify-center rounded-lg bg-[var(--green)] text-lg font-[family-name:var(--font-display)] font-black text-[var(--paper)]"
           >
-            ₹
+            ₹₹
           </span>
           <span className="text-[17px] font-semibold tracking-tight">Raghu Rokda</span>
         </Link>
@@ -105,7 +105,7 @@ export function LandingPage() {
           aria-hidden
           className="rr-float pointer-events-none absolute -right-10 top-0 select-none font-[family-name:var(--font-display)] text-[22rem] font-black leading-none text-[var(--green)]/[0.07] sm:-right-4 sm:text-[30rem]"
         >
-          ₹
+          ₹₹
         </span>
 
         <p
@@ -293,7 +293,7 @@ export function LandingPage() {
           aria-hidden
           className="pointer-events-none absolute -bottom-28 -left-10 select-none font-[family-name:var(--font-display)] text-[26rem] font-black leading-none text-[var(--paper)]/[0.06]"
         >
-          ₹
+          ₹₹
         </span>
         <div className="relative mx-auto max-w-6xl px-6 py-24 text-center sm:py-32">
           <h2 className="mx-auto max-w-[18ch] font-[family-name:var(--font-display)] text-[clamp(2.4rem,6vw,5rem)] font-black leading-[1] tracking-[-0.02em]">
@@ -319,7 +319,7 @@ export function LandingPage() {
             aria-hidden
             className="flex size-7 items-center justify-center rounded-md bg-[var(--ink)] text-sm font-[family-name:var(--font-display)] font-black text-[var(--paper)]"
           >
-            ₹
+            ₹₹
           </span>
           <span className="text-sm font-semibold">Raghu Rokda</span>
         </div>
