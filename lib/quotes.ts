@@ -7,6 +7,8 @@ export type QuoteTheme =
   | "niti";
 
 export type Quote = {
+  /** Stable id derived from content — used as the like key in the database. */
+  id: string;
   text: string;
   author: string;
   source?: string;
@@ -34,7 +36,7 @@ export const QUOTE_THEMES: ThemeMeta[] = [
 export const themeMeta = (id: QuoteTheme): ThemeMeta =>
   QUOTE_THEMES.find((theme) => theme.id === id) ?? QUOTE_THEMES[0];
 
-export const QUOTES: Quote[] = [
+const RAW_QUOTES: Omit<Quote, "id">[] = [
   // --- Clearing Debt ---
   { theme: "debt", text: "Rather go to bed without dinner than to rise in debt.", author: "Benjamin Franklin" },
   { theme: "debt", text: "Think what you do when you run in debt; you give to another power over your liberty.", author: "Benjamin Franklin" },
@@ -215,3 +217,20 @@ export const QUOTES: Quote[] = [
     source: "Niti Shataka"
   }
 ];
+
+/** Deterministic id from content, so likes stay stable across deploys. */
+function quoteId(quote: Omit<Quote, "id">): string {
+  const input = `${quote.theme}|${quote.author}|${quote.text}`;
+  let hash = 5381;
+  for (let i = 0; i < input.length; i += 1) {
+    hash = ((hash << 5) + hash + input.charCodeAt(i)) | 0;
+  }
+  return `q_${(hash >>> 0).toString(36)}`;
+}
+
+export const QUOTES: Quote[] = RAW_QUOTES.map((quote) => ({
+  ...quote,
+  id: quoteId(quote)
+}));
+
+export const QUOTE_IDS: ReadonlySet<string> = new Set(QUOTES.map((quote) => quote.id));

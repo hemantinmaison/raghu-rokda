@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
 import { QuotesView } from "@/components/quotes-view";
 import { createClient } from "@/lib/supabase/server";
@@ -15,17 +14,30 @@ export default async function QuotesPage() {
     data: { user }
   } = await supabase.auth.getUser();
 
-  if (!user) redirect("/login");
+  const { data: countRows } = await supabase.rpc("quote_like_counts");
+  const likeCounts: Record<string, number> = {};
+  for (const row of countRows ?? []) {
+    likeCounts[row.quote_id] = Number(row.like_count);
+  }
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("monthly_salary")
-    .eq("user_id", user.id)
-    .maybeSingle();
+  let monthlySalary = 0;
+  let likedIds: string[] = [];
+  if (user) {
+    const [profileResult, likesResult] = await Promise.all([
+      supabase.from("profiles").select("monthly_salary").eq("user_id", user.id).maybeSingle(),
+      supabase.from("quote_likes").select("quote_id").eq("user_id", user.id)
+    ]);
+    monthlySalary = profileResult.data?.monthly_salary ?? 0;
+    likedIds = (likesResult.data ?? []).map((row) => row.quote_id);
+  }
 
   return (
-    <AppShell userEmail={user.email ?? "Signed in"} monthlySalary={profile?.monthly_salary ?? 0}>
-      <QuotesView />
+    <AppShell userEmail={user?.email ?? undefined} monthlySalary={monthlySalary}>
+      <QuotesView
+        isAuthenticated={Boolean(user)}
+        likeCounts={likeCounts}
+        likedIds={likedIds}
+      />
     </AppShell>
   );
 }

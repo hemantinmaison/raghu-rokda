@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { Quote } from "lucide-react";
-import { signOut } from "@/app/auth/actions";
 import { HeaderProfile } from "@/components/header-profile";
 
 type AppShellProps = {
@@ -24,24 +23,25 @@ export function AppShell({ children, userEmail, monthlySalary }: AppShellProps) 
             </span>
             <span className="text-sm font-medium text-ink-900">Raghu Rokda</span>
           </Link>
-          {userEmail ? (
-            <div className="flex items-center gap-2">
-              <Link
-                href="/quotes"
-                className="focus-ring inline-flex items-center gap-1.5 rounded-md border border-line px-3 py-1.5 text-sm text-ink-700 hover:bg-canvas"
-              >
-                <Quote className="size-4" />
-                Quotes
-              </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/quotes"
+              className="focus-ring inline-flex items-center gap-1.5 rounded-md border border-line px-3 py-1.5 text-sm text-ink-700 hover:bg-canvas"
+            >
+              <Quote className="size-4" />
+              Quotes
+            </Link>
+            {userEmail ? (
               <HeaderProfile userEmail={userEmail} monthlySalary={monthlySalary ?? 0} />
-            </div>
-          ) : (
-            <form action={signOut}>
-              <button className="focus-ring rounded-md border border-line px-3 py-1.5 text-sm hover:bg-canvas">
-                Sign out
-              </button>
-            </form>
-          )}
+            ) : (
+              <Link
+                href="/login"
+                className="focus-ring rounded-md bg-ink-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-ink-700"
+              >
+                Sign in
+              </Link>
+            )}
+          </div>
         </div>
       </header>
       {children}

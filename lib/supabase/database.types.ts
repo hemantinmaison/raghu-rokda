@@ -147,6 +147,24 @@ export type Database = {
         };
         Relationships: [];
       };
+      quote_likes: {
+        Row: {
+          user_id: string;
+          quote_id: string;
+          created_at: string;
+        };
+        Insert: {
+          user_id: string;
+          quote_id: string;
+          created_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          quote_id?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -155,6 +173,10 @@ export type Database = {
       reorder_items: {
         Args: { p_kind: string; p_ids: string[] };
         Returns: undefined;
+      };
+      quote_like_counts: {
+        Args: Record<string, never>;
+        Returns: { quote_id: string; like_count: number }[];
       };
     };
     Enums: {
