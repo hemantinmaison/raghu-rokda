@@ -65,3 +65,62 @@ button:disabled {
   outline: 3px solid color-mix(in srgb, var(--color-brand-700) 28%, transparent);
   outline-offset: 2px;
 }
+
+/* --- Landing page (route /) --- */
+@keyframes rr-rise {
+  from {
+    opacity: 0;
+    transform: translateY(26px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes rr-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-9deg);
+  }
+  50% {
+    transform: translateY(-22px) rotate(-9deg);
+  }
+}
+
+@keyframes rr-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.rr-rise {
+  opacity: 0;
+  animation: rr-rise 0.95s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.rr-float {
+  animation: rr-float 9s ease-in-out infinite;
+}
+
+.rr-marquee {
+  animation: rr-marquee 42s linear infinite;
+}
+
+.rr-grain {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rr-rise {
+    animation: none;
+    opacity: 1;
+  }
+  .rr-float,
+  .rr-marquee {
+    animation: none;
+  }
+}

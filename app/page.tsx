@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
 import { AppShell, DashboardLoadError } from "@/components/app-shell";
+import { LandingPage } from "@/components/landing-page";
 import { PlannerDashboard } from "@/components/planner-dashboard";
 import { createClient } from "@/lib/supabase/server";
 import { fetchDashboardData } from "@/lib/queries";
@@ -10,7 +10,7 @@ export default async function Home() {
     data: { user }
   } = await supabase.auth.getUser();
 
-  if (!user) redirect("/login");
+  if (!user) return <LandingPage />;
 
   const userEmail = user.email ?? "Signed in";
   const result = await fetchDashboardData(user.id);
