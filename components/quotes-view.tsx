@@ -19,7 +19,7 @@ export function QuotesView() {
       <div>
         <h2 className="text-2xl font-semibold">Money wisdom</h2>
         <p className="mt-1 text-sm text-ink-400">
-          Quotes on clearing debt, financial freedom, and how money works.
+          Quotes on clearing debt, financial freedom, how money works, and the Niti Shastras.
         </p>
       </div>
 
@@ -50,7 +50,18 @@ export function QuotesView() {
               className="flex flex-col gap-3 rounded-lg border border-line-faint bg-white p-5 shadow-sm"
             >
               <QuoteIcon className="size-5 text-ink-200" aria-hidden />
-              <p className="flex-1 text-[15px] leading-7 text-ink-900">{quote.text}</p>
+              {quote.sanskrit ? (
+                <div className="flex-1 space-y-2.5">
+                  <p className="whitespace-pre-line text-[15px] font-medium leading-8 text-ink-900">
+                    {quote.sanskrit}
+                  </p>
+                  <p className="border-t border-line-faint pt-2.5 text-sm leading-6 text-ink-500">
+                    {quote.text}
+                  </p>
+                </div>
+              ) : (
+                <p className="flex-1 text-[15px] leading-7 text-ink-900">{quote.text}</p>
+              )}
               <div className="flex items-end justify-between gap-3">
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium text-ink-700">{quote.author}</p>

@@ -1,10 +1,18 @@
-export type QuoteTheme = "debt" | "freedom" | "earning" | "how-money-works" | "from-books";
+export type QuoteTheme =
+  | "debt"
+  | "freedom"
+  | "earning"
+  | "how-money-works"
+  | "from-books"
+  | "niti";
 
 export type Quote = {
   text: string;
   author: string;
   source?: string;
   theme: QuoteTheme;
+  /** Original Devanagari shloka, shown above the English translation. */
+  sanskrit?: string;
 };
 
 export type ThemeMeta = {
@@ -19,7 +27,8 @@ export const QUOTE_THEMES: ThemeMeta[] = [
   { id: "freedom", label: "Financial Freedom", bg: "#dbeddb", text: "#1c3829" },
   { id: "earning", label: "Earning Money", bg: "#d3e5ef", text: "#183347" },
   { id: "how-money-works", label: "How Money Works", bg: "#e8deee", text: "#3c2e44" },
-  { id: "from-books", label: "From the Books", bg: "#fdecc8", text: "#4a3919" }
+  { id: "from-books", label: "From the Books", bg: "#fdecc8", text: "#4a3919" },
+  { id: "niti", label: "Niti Shastra", bg: "#fadec9", text: "#5c3b23" }
 ];
 
 export const themeMeta = (id: QuoteTheme): ThemeMeta =>
@@ -103,5 +112,106 @@ export const QUOTES: Quote[] = [
   { theme: "from-books", text: "Wealth is the result of a lifestyle of hard work, perseverance, planning, and self-discipline.", author: "Thomas J. Stanley", source: "The Millionaire Next Door" },
   { theme: "from-books", text: "Big hat, no cattle.", author: "Thomas J. Stanley", source: "The Millionaire Next Door" },
   { theme: "from-books", text: "Annual income twenty pounds, annual expenditure nineteen and six, result happiness. Annual income twenty pounds, annual expenditure twenty pounds ought and six, result misery.", author: "Charles Dickens", source: "David Copperfield" },
-  { theme: "from-books", text: "Money is only a tool. It will take you wherever you wish, but it will not replace you as the driver.", author: "Ayn Rand", source: "Atlas Shrugged" }
+  { theme: "from-books", text: "Money is only a tool. It will take you wherever you wish, but it will not replace you as the driver.", author: "Ayn Rand", source: "Atlas Shrugged" },
+
+  // --- Niti Shastra (Sanskrit wisdom on wealth) ---
+  {
+    theme: "niti",
+    sanskrit: "आपदर्थे धनं रक्षेद् दारान् रक्षेद् धनैरपि।\nआत्मानं सततं रक्षेद् दारैरपि धनैरपि॥",
+    text: "Save wealth to guard against times of adversity. Protect your family even by spending that wealth. But always protect your own self — even at the cost of wealth and family.",
+    author: "Chanakya",
+    source: "Chanakya Niti"
+  },
+  {
+    theme: "niti",
+    sanskrit: "यस्यार्थास्तस्य मित्राणि यस्यार्थास्तस्य बान्धवाः।\nयस्यार्थाः स पुमाँल्लोके यस्यार्थाः स च पण्डितः॥",
+    text: "He who has wealth has friends; he who has wealth has relatives; he who has wealth is counted a man in this world; and he who has wealth is regarded as learned.",
+    author: "Chanakya",
+    source: "Chanakya Niti"
+  },
+  {
+    theme: "niti",
+    sanskrit: "सन्तोषस्त्रिषु कर्तव्यः स्वदारे भोजने धने।\nत्रिषु चैव न कर्तव्योऽध्ययने जपदानयोः॥",
+    text: "Be content with three things — your spouse, your food, and your wealth. But never be content with three — your study, your spiritual practice, and your charity.",
+    author: "Chanakya",
+    source: "Chanakya Niti"
+  },
+  {
+    theme: "niti",
+    sanskrit: "उपार्जितानां वित्तानां त्याग एव हि रक्षणम्।\nतडागोदरसंस्थानां परीवाह इवाम्भसाम्॥",
+    text: "Wisely letting wealth flow out is itself the way to protect it — just as releasing its outflow protects the water gathered within a reservoir.",
+    author: "Hitopadesha",
+    source: "Sanskrit Subhashita"
+  },
+  {
+    theme: "niti",
+    sanskrit: "दानं भोगो नाशस्तिस्रो गतयो भवन्ति वित्तस्य।\nयो न ददाति न भुङ्क्ते तस्य तृतीया गतिर्भवति॥",
+    text: "Wealth meets one of three fates — it is given, it is enjoyed, or it is lost. For one who neither gives nor enjoys it, the third fate awaits.",
+    author: "Bhartrhari",
+    source: "Niti Shataka"
+  },
+  {
+    theme: "niti",
+    sanskrit: "न चोरहार्यं न च राजहार्यं न भ्रातृभाज्यं न च भारकारि।\nव्यये कृते वर्धत एव नित्यं विद्याधनं सर्वधनप्रधानम्॥",
+    text: "It cannot be stolen by thieves, nor seized by kings, nor divided among brothers, and it is no burden to carry. Spent, it only grows — the wealth of knowledge is the foremost of all wealth.",
+    author: "Bhartrhari",
+    source: "Niti Shataka"
+  },
+  {
+    theme: "niti",
+    sanskrit: "यस्यास्ति वित्तं स नरः कुलीनः स पण्डितः स श्रुतवान् गुणज्ञः।\nस एव वक्ता स च दर्शनीयः सर्वे गुणाः काञ्चनमाश्रयन्ते॥",
+    text: "He who has wealth is held to be well-born, wise, learned, and discerning; he alone is eloquent and admired — all virtues take refuge in gold.",
+    author: "Bhartrhari",
+    source: "Niti Shataka"
+  },
+  {
+    theme: "niti",
+    sanskrit: "अर्थागमो नित्यमरोगिता च प्रिया च भार्या प्रियवादिनी च।\nवश्यश्च पुत्रोऽर्थकरी च विद्या षड् जीवलोकस्य सुखानि राजन्॥",
+    text: "A steady income, lasting health, a loving and kind-spoken spouse, an obedient child, and knowledge that earns a livelihood — these six, O King, are the joys of life in this world.",
+    author: "Vidura",
+    source: "Vidura Niti · Mahabharata"
+  },
+  {
+    theme: "niti",
+    sanskrit: "जलबिन्दुनिपातेन क्रमशः पूर्यते घटः।\nस हेतुः सर्वविद्यानां धर्मस्य च धनस्य च॥",
+    text: "Drop by falling drop, the pot is gradually filled. This same principle holds for all learning, for righteousness, and for wealth.",
+    author: "Chanakya",
+    source: "Chanakya Niti"
+  },
+  {
+    theme: "niti",
+    sanskrit: "विद्या ददाति विनयं विनयाद्याति पात्रताम्।\nपात्रत्वाद्धनमाप्नोति धनाद्धर्मं ततः सुखम्॥",
+    text: "Knowledge gives discipline; from discipline comes worthiness; from worthiness one earns wealth; from wealth comes righteous action, and from that, happiness.",
+    author: "Hitopadesha",
+    source: "Sanskrit Subhashita"
+  },
+  {
+    theme: "niti",
+    sanskrit: "यो ध्रुवाणि परित्यज्य अध्रुवं परिषेवते।\nध्रुवाणि तस्य नश्यन्ति अध्रुवं नष्टमेव च॥",
+    text: "One who abandons what is certain to chase what is uncertain loses the certain too — and the uncertain was already lost.",
+    author: "Hitopadesha",
+    source: "Sanskrit Subhashita"
+  },
+  {
+    theme: "niti",
+    sanskrit: "अर्थानामर्जने दुःखमर्जितानां च रक्षणे।\nआये दुःखं व्यये दुःखं धिगर्थाः कष्टसंश्रयाः॥",
+    text: "There is pain in earning wealth and pain in guarding what is earned; pain when it comes and pain when it goes — wealth is, after all, a seat of trouble.",
+    author: "Bhartrhari",
+    source: "Niti Shataka"
+  },
+  {
+    theme: "niti",
+    sanskrit: "धनिकः श्रोत्रियो राजा नदी वैद्यस्तु पञ्चमः।\nपञ्च यत्र न विद्यन्ते न तत्र दिवसं वसेत्॥",
+    text: "A prosperous man, a learned scholar, a just ruler, a flowing river, and a physician — where these five are not found, do not stay even a single day.",
+    author: "Chanakya",
+    source: "Chanakya Niti"
+  },
+  {
+    theme: "niti",
+    sanskrit:
+      "को लाभो गुणिसङ्गमः किमसुखं प्राज्ञेतरैः सङ्गतिः।\nका हानिः समयच्युतिर्निपुणता का धर्मतत्त्वे रतिः॥",
+    text: "What is true gain? The company of the virtuous. What is loss? The wasting of time. And what is real skill? A steady devotion to what is right.",
+    author: "Bhartrhari",
+    source: "Niti Shataka"
+  }
 ];
