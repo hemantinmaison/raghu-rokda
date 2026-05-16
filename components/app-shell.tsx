@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
+import { Quote } from "lucide-react";
 import { signOut } from "@/app/auth/actions";
 import { HeaderProfile } from "@/components/header-profile";
 
@@ -13,7 +15,7 @@ export function AppShell({ children, userEmail, monthlySalary }: AppShellProps) 
     <main className="min-h-screen bg-canvas text-ink-900">
       <header className="sticky top-0 z-20 border-b border-line-faint bg-white/85 backdrop-blur">
         <div className="mx-auto flex h-12 max-w-7xl items-center justify-between px-5">
-          <div className="flex items-center gap-2">
+          <Link href="/" className="focus-ring flex items-center gap-2 rounded">
             <span
               aria-hidden
               className="inline-flex size-6 items-center justify-center rounded-md bg-ink-900 text-[13px] font-semibold text-white"
@@ -21,9 +23,18 @@ export function AppShell({ children, userEmail, monthlySalary }: AppShellProps) 
               R
             </span>
             <span className="text-sm font-medium text-ink-900">Raghu Rokda</span>
-          </div>
+          </Link>
           {userEmail ? (
-            <HeaderProfile userEmail={userEmail} monthlySalary={monthlySalary ?? 0} />
+            <div className="flex items-center gap-2">
+              <Link
+                href="/quotes"
+                className="focus-ring inline-flex items-center gap-1.5 rounded-md border border-line px-3 py-1.5 text-sm text-ink-700 hover:bg-canvas"
+              >
+                <Quote className="size-4" />
+                Quotes
+              </Link>
+              <HeaderProfile userEmail={userEmail} monthlySalary={monthlySalary ?? 0} />
+            </div>
           ) : (
             <form action={signOut}>
               <button className="focus-ring rounded-md border border-line px-3 py-1.5 text-sm hover:bg-canvas">
