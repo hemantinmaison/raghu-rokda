@@ -83,7 +83,7 @@ export function EmojiPickerButton({
         className="focus-ring inline-flex size-8 items-center justify-center rounded-md text-xl hover:bg-canvas"
       >
         {emoji ? (
-          <span aria-hidden>{emoji}</span>
+          <span className="text-xl" aria-hidden>{emoji}</span>
         ) : (
           <Smile className="size-4 text-ink-300" aria-hidden />
         )}

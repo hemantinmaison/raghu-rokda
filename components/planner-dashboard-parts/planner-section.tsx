@@ -233,7 +233,7 @@ function SortableRow({
         {dragEnabled ? (
           <button
             type="button"
-            className="focus-ring rounded p-1 text-ink-300 opacity-0 transition-opacity hover:bg-canvas hover:text-ink-700 focus-visible:opacity-100 group-hover:opacity-100"
+            className="focus-ring cursor-grab rounded p-1 text-ink-300 opacity-0 transition-opacity hover:bg-canvas hover:text-ink-700 focus-visible:opacity-100 active:cursor-grabbing group-hover:opacity-100"
             aria-label="Drag to reorder"
             {...attributes}
             {...listeners}

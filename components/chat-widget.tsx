@@ -272,7 +272,7 @@ export function ChatWidget({
                   key={suggestion}
                   type="button"
                   onClick={() => send(suggestion)}
-                  className="focus-ring rounded-lg border border-line-faint px-3 py-2 text-left text-sm text-ink-700 hover:bg-canvas"
+                  className="focus-ring rounded-lg border border-line-faint px-3 py-2 text-left text-xs leading-5 text-ink-700 hover:bg-canvas"
                 >
                   {suggestion}
                 </button>
@@ -373,7 +373,7 @@ export function ChatWidget({
                 ? `Describe items to add to ${TAB_LABEL[activeTab].toLowerCase()}…`
                 : `Ask about your ${TAB_LABEL[activeTab].toLowerCase()}…`
             }
-            className="focus-ring max-h-28 min-h-9 flex-1 resize-none rounded-md border border-line px-3 py-2 text-sm"
+            className="focus-ring max-h-28 min-h-9 flex-1 resize-none rounded-md border border-line px-3 py-2 text-sm placeholder:text-[13px]"
           />
           <button
             type="submit"
