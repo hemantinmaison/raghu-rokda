@@ -166,7 +166,7 @@ export function PlannerDashboard({
         </div>
       </div>
 
-      <ChatWidget activeTab={activeTab} />
+      <ChatWidget activeTab={activeTab} budgetCategories={budgetCategories} />
     </div>
   );
 }

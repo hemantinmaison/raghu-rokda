@@ -204,6 +204,59 @@ export async function createWishlistItem(formData: FormData) {
   revalidatePath("/");
 }
 
+const MAX_BULK_ITEMS = 25;
+
+/** Bulk-inserts assistant-extracted items after re-validating each one. */
+export async function createPlannerItems(
+  kind: PlannerKind,
+  items: unknown
+): Promise<{ inserted: number }> {
+  const { supabase, user } = await requireUser();
+  const parsedKind = parseOrThrow(plannerKindSchema, kind);
+  if (!Array.isArray(items) || items.length === 0) return { inserted: 0 };
+  const slice = items.slice(0, MAX_BULK_ITEMS);
+
+  let sortOrder = await nextSortOrder(supabase, TABLE_BY_KIND[parsedKind], user.id);
+
+  if (parsedKind === "budget") {
+    const rows = slice.map((item) => {
+      const parsed = parseOrThrow(budgetItemSchema, item);
+      return {
+        ...parsed,
+        emoji: parsed.emoji ?? randomEmoji("budget"),
+        user_id: user.id,
+        sort_order: sortOrder++
+      };
+    });
+    throwIfError((await supabase.from("budget_items").insert(rows)).error);
+  } else if (parsedKind === "debt") {
+    const rows = slice.map((item) => {
+      const parsed = parseOrThrow(debtItemSchema, item);
+      return {
+        ...parsed,
+        emoji: parsed.emoji ?? randomEmoji("debt"),
+        user_id: user.id,
+        sort_order: sortOrder++
+      };
+    });
+    throwIfError((await supabase.from("debt_items").insert(rows)).error);
+  } else {
+    const rows = slice.map((item) => {
+      const parsed = parseOrThrow(wishlistItemSchema, item);
+      return {
+        ...parsed,
+        emoji: parsed.emoji ?? randomEmoji("wishlist"),
+        user_id: user.id,
+        sort_order: sortOrder++
+      };
+    });
+    throwIfError((await supabase.from("wishlist_items").insert(rows)).error);
+  }
+
+  revalidatePath("/");
+  return { inserted: slice.length };
+}
+
 export async function deleteItem(kind: PlannerKind, id: string) {
   const { supabase, user } = await requireUser();
   const parsedKind = parseOrThrow(plannerKindSchema, kind);
