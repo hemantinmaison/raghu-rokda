@@ -2,6 +2,7 @@
 
 import { useMemo, useOptimistic, useState, useTransition } from "react";
 import { reorderItems } from "@/app/actions/planner";
+import { ChatWidget } from "@/components/chat-widget";
 import { PlannerSection } from "@/components/planner-dashboard-parts/planner-section";
 import {
   budgetConfig,
@@ -164,6 +165,8 @@ export function PlannerDashboard({
           )}
         </div>
       </div>
+
+      <ChatWidget activeTab={activeTab} />
     </div>
   );
 }

@@ -114,6 +114,20 @@ button:disabled {
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
 }
 
+/* --- Loading states --- */
+@keyframes rr-slide {
+  0% {
+    transform: translateX(-110%);
+  }
+  100% {
+    transform: translateX(310%);
+  }
+}
+
+.rr-loadbar {
+  animation: rr-slide 1.15s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .rr-rise {
     animation: none;
@@ -122,5 +136,9 @@ button:disabled {
   .rr-float,
   .rr-marquee {
     animation: none;
+  }
+  .rr-loadbar {
+    animation: none;
+    width: 100%;
   }
 }

@@ -19,7 +19,7 @@ export function AppShell({ children, userEmail, monthlySalary }: AppShellProps) 
               aria-hidden
               className="inline-flex size-6 items-center justify-center rounded-md bg-ink-900 text-[13px] font-semibold text-white"
             >
-              R
+              RR
             </span>
             <span className="text-sm font-medium text-ink-900">Raghu Rokda</span>
           </Link>
