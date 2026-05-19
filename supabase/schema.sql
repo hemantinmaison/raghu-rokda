@@ -47,10 +47,13 @@ create table if not exists public.wishlist_items (
   emoji text,
   amount numeric(12, 2) not null check (amount > 0),
   details text,
+  is_active boolean not null default true,
   sort_order integer not null default nextval('public.wishlist_items_sort_order_seq'),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table public.wishlist_items add column if not exists is_active boolean not null default true;
 
 alter table public.budget_items add column if not exists emoji text;
 alter table public.debt_items add column if not exists emoji text;

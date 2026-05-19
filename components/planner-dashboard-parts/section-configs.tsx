@@ -6,7 +6,8 @@ import {
   CircleDot,
   FileText,
   Hash,
-  IndianRupee
+  IndianRupee,
+  Power
 } from "lucide-react";
 import {
   createBudgetItem,
@@ -28,7 +29,8 @@ import { ForecastCell, PlaceholderCell } from "./table-cells";
 import {
   EditableNameCell,
   EditableNumberCell,
-  EditableTextCell
+  EditableTextCell,
+  EditableToggleCell
 } from "./editable-cells";
 import { NewNameInput, NewNumberInput, NewTextInput } from "./new-item-inputs";
 import { CategoryCombobox } from "./category-combobox";
@@ -63,9 +65,10 @@ const DEBT_HEADERS: TableHeader[] = [
 ];
 
 const WISHLIST_HEADERS: TableHeader[] = [
-  { label: "Name", icon: <CaseSensitive className="size-4" />, width: "30%" },
-  { label: "Amount", icon: <IndianRupee className="size-4" />, align: "right", width: "16%" },
-  { label: "Forecast", icon: <CalendarCheck className="size-4" />, width: "20%" },
+  { label: "Name", icon: <CaseSensitive className="size-4" />, width: "26%" },
+  { label: "Amount", icon: <IndianRupee className="size-4" />, align: "right", width: "15%" },
+  { label: "Active", icon: <Power className="size-4" />, width: "14%" },
+  { label: "Forecast", icon: <CalendarCheck className="size-4" />, width: "21%" },
   { label: "Details", icon: <FileText className="size-4" />, width: "24%" }
 ];
 
@@ -176,6 +179,7 @@ export const wishlistConfig: SectionConfig<DashboardWishlistItem> = {
   renderNewCells: (formId) => [
     <NewNameInput key="name" formId={formId} placeholder="Wishlist item" />,
     <NewNumberInput key="amount" formId={formId} name="amount" placeholder="0" required align="right" />,
+    <PlaceholderCell key="active">On after save</PlaceholderCell>,
     <PlaceholderCell key="forecast">Calculated after save</PlaceholderCell>,
     <NewTextInput key="details" formId={formId} name="details" placeholder="Optional details" />
   ],
@@ -194,12 +198,27 @@ export const wishlistConfig: SectionConfig<DashboardWishlistItem> = {
       format={formatCurrency}
       onSave={(amount) => updateWishlistItem(item.id, { amount: amount ?? undefined })}
     />,
-    <ForecastCell
-      key="forecast"
-      value={
-        forecast?.targetDate ? `Available by ${formatMonthYear(forecast.targetDate)}` : null
-      }
+    <EditableToggleCell
+      key="active"
+      value={item.is_active}
+      onSave={(is_active) => updateWishlistItem(item.id, { is_active })}
     />,
+    item.is_active ? (
+      <ForecastCell
+        key="forecast"
+        value={
+          forecast?.targetDate ? `Available by ${formatMonthYear(forecast.targetDate)}` : null
+        }
+      />
+    ) : (
+      <span
+        key="forecast"
+        className="inline-flex rounded px-2 py-0.5 text-[13px]"
+        style={{ backgroundColor: "#e3e2e0", color: "#6b6862" }}
+      >
+        Paused
+      </span>
+    ),
     <EditableTextCell
       key="details"
       value={item.details}

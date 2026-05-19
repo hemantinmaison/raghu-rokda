@@ -9,7 +9,7 @@ import {
   debtConfig,
   wishlistConfig
 } from "@/components/planner-dashboard-parts/section-configs";
-import { buildForecast } from "@/lib/finance";
+import { buildForecast, formatCurrency } from "@/lib/finance";
 import type {
   DashboardBudgetItem,
   DashboardDebtItem,
@@ -34,6 +34,48 @@ const TABS = [
 
 function reorderReducer<T>(_prev: T[], next: T[]): T[] {
   return next;
+}
+
+function savingsTone(value: number) {
+  if (value < 0) return "text-danger-700";
+  if (value > 0) return "text-brand-700";
+  return "text-ink-700";
+}
+
+/** Compact savings figure shown top-right of the Debt / Wishlist titles. */
+function SavingsBadge({ value }: { value: number }) {
+  return (
+    <div className="shrink-0 text-right">
+      <p className="text-[11px] font-medium uppercase tracking-wide text-ink-400">
+        Monthly savings
+      </p>
+      <p className={`text-sm font-semibold tabular-nums ${savingsTone(value)}`}>
+        {formatCurrency(value)}
+      </p>
+    </div>
+  );
+}
+
+/** Savings summary shown below the Monthly Budget table. */
+function SavingsFooter({
+  salary,
+  budgetTotal,
+  value
+}: {
+  salary: number;
+  budgetTotal: number;
+  value: number;
+}) {
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 border-t border-line-faint bg-canvas px-4 py-3">
+      <span className="text-sm text-ink-500">
+        Monthly savings · {formatCurrency(salary)} salary − {formatCurrency(budgetTotal)} budget
+      </span>
+      <span className={`text-base font-semibold tabular-nums ${savingsTone(value)}`}>
+        {formatCurrency(value)}
+      </span>
+    </div>
+  );
 }
 
 export function PlannerDashboard({
@@ -145,6 +187,13 @@ export function PlannerDashboard({
               onItemsChange={(next) => commitReorder("budget", setBudgetOrder, next)}
               forecastById={null}
               sectionContext={sectionContext}
+              footerNote={
+                <SavingsFooter
+                  salary={profile.monthly_salary}
+                  budgetTotal={forecast.budgetTotal}
+                  value={forecast.monthlySavings}
+                />
+              }
             />
           ) : activeTab === "debt" ? (
             <PlannerSection
@@ -153,6 +202,7 @@ export function PlannerDashboard({
               onItemsChange={(next) => commitReorder("debt", setDebtOrder, next)}
               forecastById={forecast.debtForecastById}
               sectionContext={sectionContext}
+              headerRight={<SavingsBadge value={forecast.monthlySavings} />}
             />
           ) : (
             <PlannerSection
@@ -161,6 +211,7 @@ export function PlannerDashboard({
               onItemsChange={(next) => commitReorder("wishlist", setWishlistOrder, next)}
               forecastById={forecast.wishlistForecastById}
               sectionContext={sectionContext}
+              headerRight={<SavingsBadge value={forecast.monthlySavings} />}
             />
           )}
         </div>

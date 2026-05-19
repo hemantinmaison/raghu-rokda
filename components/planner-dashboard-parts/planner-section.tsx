@@ -38,6 +38,10 @@ type PlannerSectionProps<T extends SectionItem> = {
   renderCells: (item: T, ctx: { forecast?: ForecastEntry } & SectionConfigContext) => ReactNode[];
   forecastById: Map<string, ForecastEntry> | null;
   sectionContext: SectionConfigContext;
+  /** Replaces the item count in the top-right of the section title. */
+  headerRight?: ReactNode;
+  /** Rendered below the table, inside the section card. */
+  footerNote?: ReactNode;
 };
 
 export function PlannerSection<T extends SectionItem>({
@@ -50,7 +54,9 @@ export function PlannerSection<T extends SectionItem>({
   renderNewCells,
   renderCells,
   forecastById,
-  sectionContext
+  sectionContext,
+  headerRight,
+  footerNote
 }: PlannerSectionProps<T>) {
   const [isAdding, setIsAdding] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -91,11 +97,13 @@ export function PlannerSection<T extends SectionItem>({
 
   return (
     <section className="rounded-md border border-line-faint bg-white shadow-sm">
-      <div className="flex items-baseline justify-between border-b border-line-faint p-4">
+      <div className="flex items-center justify-between gap-3 border-b border-line-faint p-4">
         <h3 className="text-xl font-semibold">{title}</h3>
-        <p className="text-sm text-ink-400">
-          {items.length} item{items.length === 1 ? "" : "s"}
-        </p>
+        {headerRight ?? (
+          <p className="text-sm text-ink-400">
+            {items.length} item{items.length === 1 ? "" : "s"}
+          </p>
+        )}
       </div>
 
       {isAdding ? <form id={formId} onSubmit={handleCreateSubmit} /> : null}
@@ -193,6 +201,8 @@ export function PlannerSection<T extends SectionItem>({
           </div>
         </SortableContext>
       </DndContext>
+
+      {footerNote}
     </section>
   );
 }

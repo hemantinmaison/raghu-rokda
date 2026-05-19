@@ -48,6 +48,7 @@ export function normalizeWishlistItem(item: DashboardWishlistItem): DashboardWis
     ...item,
     emoji: normalizeEmoji(item.emoji),
     amount: toNumber(item.amount),
+    is_active: item.is_active !== false,
     sort_order: toNumber(item.sort_order)
   };
 }

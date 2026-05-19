@@ -18,7 +18,7 @@ export type DashboardDebtItem = Pick<
 >;
 export type DashboardWishlistItem = Pick<
   WishlistItem,
-  "id" | "name" | "emoji" | "amount" | "details" | "sort_order"
+  "id" | "name" | "emoji" | "amount" | "details" | "is_active" | "sort_order"
 >;
 
 export type ForecastEntry = {

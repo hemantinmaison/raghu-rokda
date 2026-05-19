@@ -101,7 +101,7 @@ export const wishlistItemSchema: z.ZodType<WishlistItemInput, z.ZodTypeDef, unkn
 
 export type BudgetItemPatch = Partial<BudgetItemInput>;
 export type DebtItemPatch = Partial<DebtItemInput>;
-export type WishlistItemPatch = Partial<WishlistItemInput>;
+export type WishlistItemPatch = Partial<WishlistItemInput & { is_active: boolean }>;
 
 export const budgetItemPatchSchema: z.ZodType<BudgetItemPatch, z.ZodTypeDef, unknown> = z
   .object({
@@ -129,6 +129,7 @@ export const wishlistItemPatchSchema: z.ZodType<WishlistItemPatch, z.ZodTypeDef,
     name: nameField,
     emoji: emojiField,
     amount: money,
-    details: detailsField
+    details: detailsField,
+    is_active: z.boolean()
   })
   .partial();

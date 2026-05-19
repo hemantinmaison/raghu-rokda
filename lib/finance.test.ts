@@ -44,6 +44,7 @@ function wishlist(overrides: Partial<WishlistItem>): WishlistItem {
     emoji: null,
     amount: 40000,
     details: null,
+    is_active: true,
     ...overrides
   };
 }

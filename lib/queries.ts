@@ -43,7 +43,7 @@ export async function fetchDashboardData(userId: string): Promise<DashboardLoadR
       .order("id"),
     supabase
       .from("wishlist_items")
-      .select("id,name,emoji,amount,details,sort_order")
+      .select("id,name,emoji,amount,details,is_active,sort_order")
       .eq("user_id", userId)
       .order("sort_order")
       .order("id")

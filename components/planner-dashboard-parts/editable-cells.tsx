@@ -297,3 +297,57 @@ export function EditableNumberCell({
     </button>
   );
 }
+
+export function EditableToggleCell({
+  value,
+  onSave,
+  onLabel = "On",
+  offLabel = "Off"
+}: {
+  value: boolean;
+  onSave: (value: boolean) => Promise<void>;
+  onLabel?: string;
+  offLabel?: string;
+}) {
+  const [on, setOn] = useState(value);
+  const [error, setError] = useState<string | null>(null);
+  const [, startTransition] = useTransition();
+
+  useEffect(() => setOn(value), [value]);
+
+  function toggle() {
+    const next = !on;
+    setOn(next);
+    setError(null);
+    startTransition(() => {
+      void onSave(next).catch((saveError) => {
+        setOn(!next);
+        setError(errorMessage(saveError));
+      });
+    });
+  }
+
+  return (
+    <div className="flex items-center gap-2" title={error ?? undefined}>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={on}
+        aria-label={on ? onLabel : offLabel}
+        onClick={toggle}
+        className={`focus-ring relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors ${
+          on ? "bg-teal-700" : "bg-line"
+        }`}
+      >
+        <span
+          className={`inline-block size-4 rounded-full bg-white shadow-sm transition-transform ${
+            on ? "translate-x-[18px]" : "translate-x-0.5"
+          }`}
+        />
+      </button>
+      <span className={`text-xs font-medium ${on ? "text-ink-700" : "text-ink-300"}`}>
+        {on ? onLabel : offLabel}
+      </span>
+    </div>
+  );
+}

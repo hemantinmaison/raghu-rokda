@@ -74,8 +74,14 @@ export function buildForecast(params: {
   const startDate = params.startDate ?? new Date();
   let cumulativeAmount = 0;
 
-  const project = <T extends { id: string; amount: number }>(items: T[]): ForecastEntry[] =>
+  const project = <T extends { id: string; amount: number }>(
+    items: T[],
+    isActive?: (item: T) => boolean
+  ): ForecastEntry[] =>
     items.map((item) => {
+      // Skipped items (e.g. switched-off wishes) stay in the list but do not
+      // consume savings, so items after them are reached sooner.
+      if (isActive && !isActive(item)) return emptyForecast(item.id);
       cumulativeAmount += item.amount;
       const monthsFromNow = Math.ceil(cumulativeAmount / monthlySavings);
       return {
@@ -86,7 +92,7 @@ export function buildForecast(params: {
     });
 
   const debtForecasts = project(params.debtItems);
-  const wishlistForecasts = project(params.wishlistItems);
+  const wishlistForecasts = project(params.wishlistItems, (item) => item.is_active);
 
   return {
     budgetTotal,
