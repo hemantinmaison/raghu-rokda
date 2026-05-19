@@ -37,7 +37,7 @@ export async function fetchDashboardData(userId: string): Promise<DashboardLoadR
       .order("id"),
     supabase
       .from("debt_items")
-      .select("id,name,emoji,amount,interest_rate,tenure_months,details,sort_order")
+      .select("id,name,emoji,amount,interest_rate,tenure_months,monthly_emi,details,sort_order")
       .eq("user_id", userId)
       .order("sort_order")
       .order("id"),

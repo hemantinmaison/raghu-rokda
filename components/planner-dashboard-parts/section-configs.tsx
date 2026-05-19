@@ -7,7 +7,8 @@ import {
   FileText,
   Hash,
   IndianRupee,
-  Power
+  Power,
+  Repeat
 } from "lucide-react";
 import {
   createBudgetItem,
@@ -56,12 +57,13 @@ const BUDGET_HEADERS: TableHeader[] = [
 ];
 
 const DEBT_HEADERS: TableHeader[] = [
-  { label: "Name", icon: <CaseSensitive className="size-4" />, width: "20%" },
-  { label: "Amount", icon: <IndianRupee className="size-4" />, align: "right", width: "13%" },
-  { label: "Interest", icon: <CircleDot className="size-4" />, width: "11%" },
-  { label: "Tenure", icon: <Hash className="size-4" />, width: "12%" },
+  { label: "Name", icon: <CaseSensitive className="size-4" />, width: "17%" },
+  { label: "Amount", icon: <IndianRupee className="size-4" />, align: "right", width: "12%" },
+  { label: "Monthly EMI", icon: <Repeat className="size-4" />, align: "right", width: "13%" },
+  { label: "Interest", icon: <CircleDot className="size-4" />, width: "10%" },
+  { label: "Tenure", icon: <Hash className="size-4" />, width: "11%" },
   { label: "Forecast", icon: <CalendarCheck className="size-4" />, width: "17%" },
-  { label: "Details", icon: <FileText className="size-4" />, width: "17%" }
+  { label: "Details", icon: <FileText className="size-4" />, width: "20%" }
 ];
 
 const WISHLIST_HEADERS: TableHeader[] = [
@@ -121,6 +123,13 @@ export const debtConfig: SectionConfig<DashboardDebtItem> = {
     <NewNameInput key="name" formId={formId} placeholder="Debt name" />,
     <NewNumberInput key="amount" formId={formId} name="amount" placeholder="0" required align="right" />,
     <NewNumberInput
+      key="emi"
+      formId={formId}
+      name="monthly_emi"
+      placeholder="EMI"
+      align="right"
+    />,
+    <NewNumberInput
       key="interest"
       formId={formId}
       name="interest_rate"
@@ -147,6 +156,14 @@ export const debtConfig: SectionConfig<DashboardDebtItem> = {
       onSave={(amount) => updateDebtItem(item.id, { amount: amount ?? undefined })}
     />,
     <EditableNumberCell
+      key="emi"
+      value={item.monthly_emi}
+      align="right"
+      format={formatCurrency}
+      placeholder="Set EMI"
+      onSave={(monthly_emi) => updateDebtItem(item.id, { monthly_emi })}
+    />,
+    <EditableNumberCell
       key="interest"
       value={item.interest_rate}
       step="0.01"
@@ -159,10 +176,16 @@ export const debtConfig: SectionConfig<DashboardDebtItem> = {
       format={(value) => `${value} ${value === 1 ? "month" : "months"}`}
       onSave={(tenure_months) => updateDebtItem(item.id, { tenure_months })}
     />,
-    <ForecastCell
-      key="forecast"
-      value={forecast?.targetDate ? `Paid by ${formatMonthYear(forecast.targetDate)}` : null}
-    />,
+    item.monthly_emi ? (
+      <ForecastCell
+        key="forecast"
+        value={forecast?.targetDate ? `Paid by ${formatMonthYear(forecast.targetDate)}` : null}
+      />
+    ) : (
+      <span key="forecast" className="text-[13px] text-ink-300">
+        Add a monthly EMI
+      </span>
+    ),
     <EditableTextCell
       key="details"
       value={item.details}

@@ -14,7 +14,15 @@ export type DashboardBudgetItem = Pick<
 >;
 export type DashboardDebtItem = Pick<
   DebtItem,
-  "id" | "name" | "emoji" | "amount" | "interest_rate" | "tenure_months" | "details" | "sort_order"
+  | "id"
+  | "name"
+  | "emoji"
+  | "amount"
+  | "interest_rate"
+  | "tenure_months"
+  | "monthly_emi"
+  | "details"
+  | "sort_order"
 >;
 export type DashboardWishlistItem = Pick<
   WishlistItem,

@@ -116,7 +116,7 @@ export function PlannerSection<T extends SectionItem>({
       >
         <SortableContext items={items.map((item) => item.id)} strategy={verticalListSortingStrategy}>
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[820px] table-fixed border-collapse text-sm">
+            <table className="w-full min-w-[920px] table-fixed border-collapse text-sm">
               <colgroup>
                 <col style={{ width: 36 }} />
                 {headers.map((header) => (

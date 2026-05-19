@@ -20,6 +20,12 @@ const optionalPositiveInteger: z.ZodType<number | null, z.ZodTypeDef, unknown> =
     z.union([z.null(), z.coerce.number().int().positive()])
   );
 
+const optionalPositiveNumber: z.ZodType<number | null, z.ZodTypeDef, unknown> = z
+  .preprocess(
+    (v) => (v === "" || v === null || v === undefined ? null : v),
+    z.union([z.null(), z.coerce.number().finite().positive()])
+  );
+
 const nameField = z.string().trim().min(1, "Name is required").max(120, "Name is too long");
 const detailsField = z
   .string()
@@ -58,6 +64,7 @@ export type DebtItemInput = {
   amount: number;
   interest_rate: number | null;
   tenure_months: number | null;
+  monthly_emi: number | null;
   details: string | null;
 };
 export type WishlistItemInput = {
@@ -89,6 +96,7 @@ export const debtItemSchema: z.ZodType<DebtItemInput, z.ZodTypeDef, unknown> = z
   amount: money,
   interest_rate: optionalNonNegativeNumber,
   tenure_months: optionalPositiveInteger,
+  monthly_emi: optionalPositiveNumber,
   details: detailsField
 });
 
@@ -120,6 +128,7 @@ export const debtItemPatchSchema: z.ZodType<DebtItemPatch, z.ZodTypeDef, unknown
     amount: money,
     interest_rate: optionalNonNegativeNumber,
     tenure_months: optionalPositiveInteger,
+    monthly_emi: optionalPositiveNumber,
     details: detailsField
   })
   .partial();

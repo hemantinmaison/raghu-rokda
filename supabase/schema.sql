@@ -34,11 +34,16 @@ create table if not exists public.debt_items (
   amount numeric(12, 2) not null check (amount > 0),
   interest_rate numeric(7, 3) check (interest_rate is null or interest_rate >= 0),
   tenure_months integer check (tenure_months is null or tenure_months > 0),
+  monthly_emi numeric(12, 2) check (monthly_emi is null or monthly_emi > 0),
   details text,
   sort_order integer not null default nextval('public.debt_items_sort_order_seq'),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table public.debt_items
+  add column if not exists monthly_emi numeric(12, 2)
+  check (monthly_emi is null or monthly_emi > 0);
 
 create table if not exists public.wishlist_items (
   id uuid primary key default gen_random_uuid(),

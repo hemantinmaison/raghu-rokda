@@ -78,6 +78,7 @@ export type Database = {
           amount: number;
           interest_rate: number | null;
           tenure_months: number | null;
+          monthly_emi: number | null;
           details: string | null;
           sort_order: number;
           created_at: string;
@@ -91,6 +92,7 @@ export type Database = {
           amount: number;
           interest_rate?: number | null;
           tenure_months?: number | null;
+          monthly_emi?: number | null;
           details?: string | null;
           sort_order?: number;
           created_at?: string;
@@ -104,6 +106,7 @@ export type Database = {
           amount?: number;
           interest_rate?: number | null;
           tenure_months?: number | null;
+          monthly_emi?: number | null;
           details?: string | null;
           sort_order?: number;
           created_at?: string;

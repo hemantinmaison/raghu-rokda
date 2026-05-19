@@ -39,6 +39,7 @@ export function normalizeDebtItem(item: DashboardDebtItem): DashboardDebtItem {
     amount: toNumber(item.amount),
     interest_rate: item.interest_rate === null ? null : toNumber(item.interest_rate),
     tenure_months: item.tenure_months === null ? null : toNumber(item.tenure_months),
+    monthly_emi: item.monthly_emi === null ? null : toNumber(item.monthly_emi),
     sort_order: toNumber(item.sort_order)
   };
 }

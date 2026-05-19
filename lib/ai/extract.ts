@@ -12,7 +12,7 @@ const ITEM_SHAPE: Record<PlannerKind, string> = {
   budget:
     '{ "name": string, "emoji": string|null, "amount": number, "category": string, "details": string|null }',
   debt:
-    '{ "name": string, "emoji": string|null, "amount": number, "interest_rate": number|null, "tenure_months": number|null, "details": string|null }',
+    '{ "name": string, "emoji": string|null, "amount": number, "interest_rate": number|null, "tenure_months": number|null, "monthly_emi": number|null, "details": string|null }',
   wishlist: '{ "name": string, "emoji": string|null, "amount": number, "details": string|null }'
 };
 
@@ -42,7 +42,8 @@ export async function extractPlannerItems(params: {
   if (tab === "debt") {
     rules.push(
       "interest_rate: yearly interest percent as a number, or null if not stated.",
-      "tenure_months: loan length in whole months, or null if not stated."
+      "tenure_months: loan length in whole months, or null if not stated.",
+      "monthly_emi: the fixed monthly EMI payment as a number, or null if not stated."
     );
   }
 

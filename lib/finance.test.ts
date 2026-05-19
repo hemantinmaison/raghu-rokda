@@ -31,6 +31,7 @@ function debt(overrides: Partial<DebtItem>): DebtItem {
     amount: 50000,
     interest_rate: null,
     tenure_months: null,
+    monthly_emi: null,
     details: null,
     ...overrides
   };
@@ -60,17 +61,31 @@ describe("finance forecasting", () => {
     expect(result.monthlySavings).toBe(55000);
   });
 
-  it("projects debt first and wishlist after debt across year boundaries", () => {
+  it("forecasts debt payoff from its EMI and wishlist from savings", () => {
     const forecast = buildForecast({
       monthlySalary: 100000,
       budgetItems: [budget({ amount: 50000 })],
-      debtItems: [debt({ id: "loan", amount: 75000 })],
+      // 75000 ÷ 25000 EMI = 3 months → Feb 2027
+      debtItems: [debt({ id: "loan", amount: 75000, monthly_emi: 25000 })],
+      // savings 50000; 100000 ÷ 50000 = 2 months → Jan 2027
       wishlistItems: [wishlist({ id: "bike", amount: 100000 })],
       startDate: new Date(2026, 10, 1)
     });
 
-    expect(formatMonthYear(forecast.debtForecasts[0].targetDate!)).toBe("January 2027");
-    expect(formatMonthYear(forecast.wishlistForecasts[0].targetDate!)).toBe("March 2027");
+    expect(formatMonthYear(forecast.debtForecasts[0].targetDate!)).toBe("February 2027");
+    expect(formatMonthYear(forecast.wishlistForecasts[0].targetDate!)).toBe("January 2027");
+  });
+
+  it("does not forecast a debt that has no monthly EMI", () => {
+    const forecast = buildForecast({
+      monthlySalary: 100000,
+      budgetItems: [budget({ amount: 40000 })],
+      debtItems: [debt({ id: "loan", amount: 75000, monthly_emi: null })],
+      wishlistItems: [],
+      startDate: new Date(2026, 0, 1)
+    });
+
+    expect(forecast.debtForecasts[0].targetDate).toBeNull();
   });
 
   it("returns no projected dates when savings are zero or negative", () => {
@@ -91,12 +106,12 @@ describe("finance forecasting", () => {
     const forecast = buildForecast({
       monthlySalary: 100000,
       budgetItems: [],
-      debtItems: [debt({ id: "loan", amount: 50000 })],
+      debtItems: [debt({ id: "loan", amount: 50000, monthly_emi: 50000 })],
       wishlistItems: [wishlist({ id: "bike", amount: 100000 })],
       startDate: new Date(2026, 0, 1)
     });
 
     expect(forecast.debtForecastById.get("loan")?.monthsFromNow).toBe(1);
-    expect(forecast.wishlistForecastById.get("bike")?.monthsFromNow).toBe(2);
+    expect(forecast.wishlistForecastById.get("bike")?.monthsFromNow).toBe(1);
   });
 });

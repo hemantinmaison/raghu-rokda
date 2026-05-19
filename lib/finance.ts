@@ -57,42 +57,26 @@ export function buildForecast(params: {
     params.monthlySalary,
     params.budgetItems
   );
-
-  if (monthlySavings <= 0) {
-    const debtForecasts = params.debtItems.map((item) => emptyForecast(item.id));
-    const wishlistForecasts = params.wishlistItems.map((item) => emptyForecast(item.id));
-    return {
-      budgetTotal,
-      monthlySavings,
-      debtForecasts,
-      wishlistForecasts,
-      debtForecastById: toMap(debtForecasts),
-      wishlistForecastById: toMap(wishlistForecasts)
-    };
-  }
-
   const startDate = params.startDate ?? new Date();
-  let cumulativeAmount = 0;
 
-  const project = <T extends { id: string; amount: number }>(
-    items: T[],
-    isActive?: (item: T) => boolean
-  ): ForecastEntry[] =>
-    items.map((item) => {
-      // Skipped items (e.g. switched-off wishes) stay in the list but do not
-      // consume savings, so items after them are reached sooner.
-      if (isActive && !isActive(item)) return emptyForecast(item.id);
-      cumulativeAmount += item.amount;
-      const monthsFromNow = Math.ceil(cumulativeAmount / monthlySavings);
-      return {
-        id: item.id,
-        monthsFromNow,
-        targetDate: addMonths(startDate, monthsFromNow)
-      };
-    });
+  // Debts: each loan is paid down by its own monthly EMI, independently.
+  // The EMI already sits in the budget, so this never touches monthlySavings.
+  const debtForecasts: ForecastEntry[] = params.debtItems.map((item) => {
+    const emi = item.monthly_emi;
+    if (emi === null || emi <= 0) return emptyForecast(item.id);
+    const monthsFromNow = Math.ceil(item.amount / emi);
+    return { id: item.id, monthsFromNow, targetDate: addMonths(startDate, monthsFromNow) };
+  });
 
-  const debtForecasts = project(params.debtItems);
-  const wishlistForecasts = project(params.wishlistItems, (item) => item.is_active);
+  // Wishlist: funded by leftover monthly savings, active items in priority
+  // order. A switched-off wish is skipped so items after it arrive sooner.
+  let cumulative = 0;
+  const wishlistForecasts: ForecastEntry[] = params.wishlistItems.map((item) => {
+    if (!item.is_active || monthlySavings <= 0) return emptyForecast(item.id);
+    cumulative += item.amount;
+    const monthsFromNow = Math.ceil(cumulative / monthlySavings);
+    return { id: item.id, monthsFromNow, targetDate: addMonths(startDate, monthsFromNow) };
+  });
 
   return {
     budgetTotal,

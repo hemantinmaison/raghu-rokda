@@ -58,6 +58,7 @@ describe("validation", () => {
       amount: 5000,
       interest_rate: null,
       tenure_months: null,
+      monthly_emi: null,
       details: null
     });
 
@@ -75,6 +76,7 @@ describe("validation", () => {
       amount: 5000,
       interest_rate: 8.5,
       tenure_months: 24,
+      monthly_emi: null,
       details: "fixed"
     });
   });

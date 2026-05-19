@@ -169,7 +169,7 @@ export async function createDebtItem(formData: FormData) {
     debtItemSchema,
     readFields(
       formData,
-      ["name", "emoji", "amount", "interest_rate", "tenure_months", "details"] as const
+      ["name", "emoji", "amount", "interest_rate", "tenure_months", "monthly_emi", "details"] as const
     )
   );
   const sort_order = await nextSortOrder(supabase, "debt_items", user.id);
