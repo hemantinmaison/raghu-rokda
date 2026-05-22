@@ -11,4 +11,6 @@ export type CreateAction = (formData: FormData) => Promise<void>;
 
 export type SectionConfigContext = {
   budgetCategories: string[];
+  /** Current monthly savings (salary − budget) — used to prefill calculators. */
+  monthlySavings: number;
 };

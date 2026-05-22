@@ -36,6 +36,7 @@ import {
 import { NewNameInput, NewNumberInput, NewTextInput } from "./new-item-inputs";
 import { CategoryCombobox } from "./category-combobox";
 import { BudgetCategoryCell } from "./budget-category-cell";
+import { DebtPayoffCalculator } from "./debt-payoff-calculator";
 import type { CreateAction, SectionConfigContext, TableHeader } from "./types";
 
 type SectionItem = DashboardBudgetItem | DashboardDebtItem | DashboardWishlistItem;
@@ -47,6 +48,7 @@ export type SectionConfig<T extends SectionItem> = {
   createAction: CreateAction;
   renderNewCells: (formId: string, ctx: SectionConfigContext) => ReactNode[];
   renderCells: (item: T, ctx: { forecast?: ForecastEntry } & SectionConfigContext) => ReactNode[];
+  renderDetail?: (item: T, ctx: SectionConfigContext) => ReactNode;
 };
 
 const BUDGET_HEADERS: TableHeader[] = [
@@ -176,22 +178,19 @@ export const debtConfig: SectionConfig<DashboardDebtItem> = {
       format={(value) => `${value} ${value === 1 ? "month" : "months"}`}
       onSave={(tenure_months) => updateDebtItem(item.id, { tenure_months })}
     />,
-    item.monthly_emi ? (
-      <ForecastCell
-        key="forecast"
-        value={forecast?.targetDate ? `Paid by ${formatMonthYear(forecast.targetDate)}` : null}
-      />
-    ) : (
-      <span key="forecast" className="text-[13px] text-ink-300">
-        Add a monthly EMI
-      </span>
-    ),
+    <ForecastCell
+      key="forecast"
+      value={forecast?.targetDate ? `Paid by ${formatMonthYear(forecast.targetDate)}` : null}
+    />,
     <EditableTextCell
       key="details"
       value={item.details}
       onSave={(details) => updateDebtItem(item.id, { details })}
     />
-  ]
+  ],
+  renderDetail: (item, ctx) => (
+    <DebtPayoffCalculator debt={item} monthlySavings={ctx.monthlySavings} />
+  )
 };
 
 export const wishlistConfig: SectionConfig<DashboardWishlistItem> = {

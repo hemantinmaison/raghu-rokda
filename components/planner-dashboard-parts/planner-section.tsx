@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { Fragment, useState, useTransition } from "react";
 import type { FormEvent, ReactNode } from "react";
-import { GripVertical, Plus, Save, Trash2, X } from "lucide-react";
+import { ChevronDown, GripVertical, Plus, Save, Trash2, X } from "lucide-react";
 import {
   closestCenter,
   DndContext,
@@ -36,6 +36,8 @@ type PlannerSectionProps<T extends SectionItem> = {
   createAction: CreateAction;
   renderNewCells: (formId: string, ctx: SectionConfigContext) => ReactNode[];
   renderCells: (item: T, ctx: { forecast?: ForecastEntry } & SectionConfigContext) => ReactNode[];
+  /** When set, each row can expand to show this detail panel beneath it. */
+  renderDetail?: (item: T, ctx: SectionConfigContext) => ReactNode;
   forecastById: Map<string, ForecastEntry> | null;
   sectionContext: SectionConfigContext;
   /** Replaces the item count in the top-right of the section title. */
@@ -53,6 +55,7 @@ export function PlannerSection<T extends SectionItem>({
   createAction,
   renderNewCells,
   renderCells,
+  renderDetail,
   forecastById,
   sectionContext,
   headerRight,
@@ -61,6 +64,7 @@ export function PlannerSection<T extends SectionItem>({
   const [isAdding, setIsAdding] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
   const formId = `new-${kind}-item-form`;
   const dragEnabled = items.length > 1;
   const amountColumnIndex = headers.findIndex((header) => header.label === "Amount");
@@ -112,6 +116,7 @@ export function PlannerSection<T extends SectionItem>({
         id={`dnd-${kind}`}
         sensors={sensors}
         collisionDetection={closestCenter}
+        onDragStart={() => setExpandedId(null)}
         onDragEnd={handleDragEnd}
       >
         <SortableContext items={items.map((item) => item.id)} strategy={verticalListSortingStrategy}>
@@ -122,7 +127,7 @@ export function PlannerSection<T extends SectionItem>({
                 {headers.map((header) => (
                   <col key={header.label} style={{ width: header.width }} />
                 ))}
-                <col style={{ width: 40 }} />
+                <col style={{ width: renderDetail ? 64 : 40 }} />
               </colgroup>
               <thead className="bg-white text-[13px] font-normal text-ink-400">
                 <tr className="h-10 border-b border-line-faint">
@@ -145,17 +150,30 @@ export function PlannerSection<T extends SectionItem>({
               </thead>
               <tbody>
                 {items.map((item) => (
-                  <SortableRow
-                    key={item.id}
-                    id={item.id}
-                    kind={kind}
-                    dragEnabled={dragEnabled}
-                    headers={headers}
-                    cells={renderCells(item, {
-                      ...sectionContext,
-                      forecast: forecastById?.get(item.id)
-                    })}
-                  />
+                  <Fragment key={item.id}>
+                    <SortableRow
+                      id={item.id}
+                      kind={kind}
+                      dragEnabled={dragEnabled}
+                      headers={headers}
+                      cells={renderCells(item, {
+                        ...sectionContext,
+                        forecast: forecastById?.get(item.id)
+                      })}
+                      expandable={Boolean(renderDetail)}
+                      expanded={expandedId === item.id}
+                      onToggleExpand={() =>
+                        setExpandedId((current) => (current === item.id ? null : item.id))
+                      }
+                    />
+                    {renderDetail && expandedId === item.id ? (
+                      <tr className="border-b border-line-soft bg-canvas">
+                        <td colSpan={headers.length + 2} className="px-4 py-4">
+                          {renderDetail(item, sectionContext)}
+                        </td>
+                      </tr>
+                    ) : null}
+                  </Fragment>
                 ))}
                 {isAdding ? (
                   <NewItemEditRow
@@ -212,13 +230,19 @@ function SortableRow({
   kind,
   dragEnabled,
   headers,
-  cells
+  cells,
+  expandable = false,
+  expanded = false,
+  onToggleExpand
 }: {
   id: string;
   kind: PlannerKind;
   dragEnabled: boolean;
   headers: TableHeader[];
   cells: ReactNode[];
+  expandable?: boolean;
+  expanded?: boolean;
+  onToggleExpand?: () => void;
 }) {
   const [, startTransition] = useTransition();
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
@@ -262,15 +286,30 @@ function SortableRow({
           {cell}
         </td>
       ))}
-      <td className="px-2 py-2 text-right align-middle">
-        <button
-          type="button"
-          onClick={() => startTransition(() => deleteItem(kind, id))}
-          className="focus-ring rounded p-1 text-ink-300 opacity-0 transition-opacity hover:bg-danger-50 hover:text-danger-700 focus-visible:opacity-100 group-hover:opacity-100"
-          aria-label="Delete item"
-        >
-          <Trash2 className="size-4" />
-        </button>
+      <td className="px-2 py-2 align-middle">
+        <div className="flex items-center justify-end gap-0.5">
+          {expandable ? (
+            <button
+              type="button"
+              onClick={onToggleExpand}
+              aria-label={expanded ? "Hide payoff details" : "Show payoff details"}
+              aria-expanded={expanded}
+              className="focus-ring rounded p-1 text-ink-300 hover:bg-canvas hover:text-ink-700"
+            >
+              <ChevronDown
+                className={`size-4 transition-transform ${expanded ? "rotate-180" : ""}`}
+              />
+            </button>
+          ) : null}
+          <button
+            type="button"
+            onClick={() => startTransition(() => deleteItem(kind, id))}
+            className="focus-ring rounded p-1 text-ink-300 opacity-0 transition-opacity hover:bg-danger-50 hover:text-danger-700 focus-visible:opacity-100 group-hover:opacity-100"
+            aria-label="Delete item"
+          >
+            <Trash2 className="size-4" />
+          </button>
+        </div>
       </td>
     </tr>
   );

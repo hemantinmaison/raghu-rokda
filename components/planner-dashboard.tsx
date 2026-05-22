@@ -85,7 +85,6 @@ export function PlannerDashboard({
   wishlistItems,
   budgetCategories
 }: DashboardProps) {
-  const sectionContext = useMemo(() => ({ budgetCategories }), [budgetCategories]);
   const [activeTab, setActiveTab] = useState<PlannerKind>("budget");
   const [, startTransition] = useTransition();
 
@@ -111,6 +110,11 @@ export function PlannerDashboard({
         wishlistItems: wishlistView
       }),
     [budgetView, debtView, profile.monthly_salary, wishlistView]
+  );
+
+  const sectionContext = useMemo(
+    () => ({ budgetCategories, monthlySavings: forecast.monthlySavings }),
+    [budgetCategories, forecast.monthlySavings]
   );
 
   function commitReorder<T extends { id: string }>(

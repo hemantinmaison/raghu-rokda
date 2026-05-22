@@ -59,18 +59,27 @@ export function buildForecast(params: {
   );
   const startDate = params.startDate ?? new Date();
 
-  // Debts: each loan is paid down by its own monthly EMI, independently.
-  // The EMI already sits in the budget, so this never touches monthlySavings.
+  // A shared savings pool: debts without a fixed EMI are cleared first (in
+  // priority order), then wishlist items — both funded by leftover savings.
+  let cumulative = 0;
+
+  // Debts: a debt with a monthly EMI is paid on its own EMI schedule (that EMI
+  // already sits in the budget). A debt without an EMI is paid down from
+  // leftover monthly savings, just like the wishlist.
   const debtForecasts: ForecastEntry[] = params.debtItems.map((item) => {
     const emi = item.monthly_emi;
-    if (emi === null || emi <= 0) return emptyForecast(item.id);
-    const monthsFromNow = Math.ceil(item.amount / emi);
+    if (emi !== null && emi > 0) {
+      const monthsFromNow = Math.ceil(item.amount / emi);
+      return { id: item.id, monthsFromNow, targetDate: addMonths(startDate, monthsFromNow) };
+    }
+    if (monthlySavings <= 0) return emptyForecast(item.id);
+    cumulative += item.amount;
+    const monthsFromNow = Math.ceil(cumulative / monthlySavings);
     return { id: item.id, monthsFromNow, targetDate: addMonths(startDate, monthsFromNow) };
   });
 
-  // Wishlist: funded by leftover monthly savings, active items in priority
-  // order. A switched-off wish is skipped so items after it arrive sooner.
-  let cumulative = 0;
+  // Wishlist: funded by leftover monthly savings, after the non-EMI debts.
+  // A switched-off wish is skipped so items after it arrive sooner.
   const wishlistForecasts: ForecastEntry[] = params.wishlistItems.map((item) => {
     if (!item.is_active || monthlySavings <= 0) return emptyForecast(item.id);
     cumulative += item.amount;
@@ -90,4 +99,73 @@ export function buildForecast(params: {
 
 function toMap(entries: ForecastEntry[]): Map<string, ForecastEntry> {
   return new Map(entries.map((entry) => [entry.id, entry]));
+}
+
+export type LoanPayoff = {
+  /** Number of monthly payments to clear the balance. */
+  months: number;
+  /** Total interest paid over the life of the loan. */
+  totalInterest: number;
+  /** Total amount paid (principal + interest). */
+  totalPaid: number;
+  /** False when the payment can't even cover the monthly interest. */
+  cleared: boolean;
+};
+
+/**
+ * Month-by-month amortisation. Given an outstanding `balance`, an annual
+ * interest rate, and a fixed `monthlyPayment`, works out how long the loan
+ * takes to clear and how much interest it costs.
+ */
+export function simulateLoanPayoff(
+  balance: number,
+  annualRatePercent: number,
+  monthlyPayment: number
+): LoanPayoff {
+  if (balance <= 0) return { months: 0, totalInterest: 0, totalPaid: 0, cleared: true };
+  if (monthlyPayment <= 0) {
+    return { months: Infinity, totalInterest: Infinity, totalPaid: Infinity, cleared: false };
+  }
+
+  const monthlyRate = annualRatePercent / 100 / 12;
+
+  if (monthlyRate <= 0) {
+    const months = Math.ceil(balance / monthlyPayment);
+    return { months, totalInterest: 0, totalPaid: balance, cleared: true };
+  }
+
+  // If the payment doesn't beat the first month's interest, it never clears.
+  if (monthlyPayment <= balance * monthlyRate) {
+    return { months: Infinity, totalInterest: Infinity, totalPaid: Infinity, cleared: false };
+  }
+
+  let remaining = balance;
+  let months = 0;
+  let totalInterest = 0;
+  const MAX_MONTHS = 1200;
+
+  while (remaining > 0 && months < MAX_MONTHS) {
+    const interest = remaining * monthlyRate;
+    totalInterest += interest;
+    remaining = remaining + interest - monthlyPayment;
+    months += 1;
+  }
+
+  return {
+    months,
+    totalInterest,
+    totalPaid: balance + totalInterest,
+    cleared: true
+  };
+}
+
+/** Formats a month count as "11 yr 4 mo". */
+export function formatDuration(months: number): string {
+  if (!Number.isFinite(months) || months <= 0) return "0 mo";
+  const years = Math.floor(months / 12);
+  const remainder = months % 12;
+  const parts: string[] = [];
+  if (years > 0) parts.push(`${years} yr`);
+  if (remainder > 0) parts.push(`${remainder} mo`);
+  return parts.join(" ") || "0 mo";
 }

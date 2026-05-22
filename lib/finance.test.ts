@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { buildForecast, calculateMonthlySavings, formatMonthYear } from "@/lib/finance";
+import {
+  buildForecast,
+  calculateMonthlySavings,
+  formatMonthYear,
+  simulateLoanPayoff
+} from "@/lib/finance";
 import type { BudgetItem, DebtItem, WishlistItem } from "@/lib/types";
 
 const base = {
@@ -76,16 +81,17 @@ describe("finance forecasting", () => {
     expect(formatMonthYear(forecast.wishlistForecasts[0].targetDate!)).toBe("January 2027");
   });
 
-  it("does not forecast a debt that has no monthly EMI", () => {
+  it("forecasts a debt without an EMI from leftover savings", () => {
     const forecast = buildForecast({
       monthlySalary: 100000,
-      budgetItems: [budget({ amount: 40000 })],
-      debtItems: [debt({ id: "loan", amount: 75000, monthly_emi: null })],
+      budgetItems: [budget({ amount: 40000 })], // savings = 60000
+      // no EMI → 120000 ÷ 60000 savings = 2 months
+      debtItems: [debt({ id: "loan", amount: 120000, monthly_emi: null })],
       wishlistItems: [],
       startDate: new Date(2026, 0, 1)
     });
 
-    expect(forecast.debtForecasts[0].targetDate).toBeNull();
+    expect(forecast.debtForecastById.get("loan")?.monthsFromNow).toBe(2);
   });
 
   it("returns no projected dates when savings are zero or negative", () => {
@@ -113,5 +119,30 @@ describe("finance forecasting", () => {
 
     expect(forecast.debtForecastById.get("loan")?.monthsFromNow).toBe(1);
     expect(forecast.wishlistForecastById.get("bike")?.monthsFromNow).toBe(1);
+  });
+});
+
+describe("loan payoff", () => {
+  it("clears an interest-free loan over whole payments", () => {
+    const result = simulateLoanPayoff(12000, 0, 1000);
+    expect(result.cleared).toBe(true);
+    expect(result.months).toBe(12);
+    expect(result.totalInterest).toBe(0);
+  });
+
+  it("flags a loan whose payment cannot cover the interest", () => {
+    // 100000 at 12%/yr → 1000 interest the first month, payment is only 500
+    const result = simulateLoanPayoff(100000, 12, 500);
+    expect(result.cleared).toBe(false);
+    expect(Number.isFinite(result.months)).toBe(false);
+  });
+
+  it("charges interest and a bigger payment clears it faster with less interest", () => {
+    const slow = simulateLoanPayoff(100000, 12, 10000);
+    const fast = simulateLoanPayoff(100000, 12, 20000);
+    expect(slow.cleared).toBe(true);
+    expect(slow.totalInterest).toBeGreaterThan(0);
+    expect(fast.months).toBeLessThan(slow.months);
+    expect(fast.totalInterest).toBeLessThan(slow.totalInterest);
   });
 });
