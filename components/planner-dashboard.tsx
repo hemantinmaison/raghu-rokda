@@ -3,13 +3,14 @@
 import { useMemo, useOptimistic, useState, useTransition } from "react";
 import { reorderItems } from "@/app/actions/planner";
 import { ChatWidget } from "@/components/chat-widget";
+import { DashboardSummary } from "@/components/planner-dashboard-parts/dashboard-summary";
 import { PlannerSection } from "@/components/planner-dashboard-parts/planner-section";
 import {
   budgetConfig,
   debtConfig,
   wishlistConfig
 } from "@/components/planner-dashboard-parts/section-configs";
-import { buildForecast, formatCurrency } from "@/lib/finance";
+import { buildForecast, buildPlannerSummary, formatCurrency } from "@/lib/finance";
 import type {
   DashboardBudgetItem,
   DashboardDebtItem,
@@ -120,6 +121,18 @@ export function PlannerDashboard({
     [budgetView, debtView, profile.monthly_salary, wishlistView]
   );
 
+  const summary = useMemo(
+    () =>
+      buildPlannerSummary({
+        monthlySalary: profile.monthly_salary,
+        budgetItems: budgetView,
+        debtItems: debtView,
+        wishlistItems: wishlistView,
+        forecast
+      }),
+    [budgetView, debtView, forecast, profile.monthly_salary, wishlistView]
+  );
+
   const sectionContext = useMemo(
     () => ({ budgetCategories, monthlySavings: forecast.monthlySavings }),
     [budgetCategories, forecast.monthlySavings]
@@ -144,15 +157,17 @@ export function PlannerDashboard({
     debt: debtView.length,
     wishlist: wishlistView.length
   };
-  const totalDebt = debtView.reduce((sum, item) => sum + item.amount, 0);
+  const totalDebt = summary.totalDebt;
 
   return (
-    <div className="mx-auto grid max-w-7xl gap-4 px-5 py-6">
+    <div className="mx-auto grid max-w-7xl gap-4 px-3 py-4 sm:px-5 sm:py-6">
+      <DashboardSummary summary={summary} />
+
       <div className="grid gap-4">
         <div
           role="tablist"
           aria-label="Planner sections"
-          className="flex gap-1 overflow-x-auto border-b border-line-faint"
+          className="-mx-3 flex gap-1 overflow-x-auto border-b border-line-faint px-3 sm:mx-0 sm:px-0"
         >
           {TABS.map(({ kind, label }) => {
             const isActive = activeTab === kind;

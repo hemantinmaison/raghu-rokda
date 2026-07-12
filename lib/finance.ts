@@ -42,6 +42,115 @@ export function calculateMonthlySavings(monthlySalary: number, budgetItems: Dash
   };
 }
 
+export type BudgetCategorySummary = {
+  category: string;
+  amount: number;
+  percentOfBudget: number;
+};
+
+export type NextWishlistSummary = {
+  id: string;
+  name: string;
+  amount: number;
+  monthsFromNow: number | null;
+  targetDate: Date | null;
+};
+
+export type PlannerSummary = {
+  budgetTotal: number;
+  monthlySavings: number;
+  savingsRatePercent: number | null;
+  topBudgetCategories: BudgetCategorySummary[];
+  totalDebt: number;
+  monthlyEmiTotal: number;
+  emiToSalaryPercent: number | null;
+  activeWishlistCount: number;
+  activeWishlistTotal: number;
+  nextWishlist: NextWishlistSummary | null;
+};
+
+function percentOf(numerator: number, denominator: number): number | null {
+  if (denominator <= 0) return null;
+  return (numerator / denominator) * 100;
+}
+
+export function buildPlannerSummary(params: {
+  monthlySalary: number;
+  budgetItems: DashboardBudgetItem[];
+  debtItems: DashboardDebtItem[];
+  wishlistItems: DashboardWishlistItem[];
+  forecast?: ForecastResult;
+  startDate?: Date;
+}): PlannerSummary {
+  const { budgetTotal, monthlySavings } = calculateMonthlySavings(
+    params.monthlySalary,
+    params.budgetItems
+  );
+  const categoryTotals = new Map<string, number>();
+  for (const item of params.budgetItems) {
+    const category = item.category.trim() || "Uncategorized";
+    categoryTotals.set(category, (categoryTotals.get(category) ?? 0) + item.amount);
+  }
+
+  const topBudgetCategories = Array.from(categoryTotals.entries())
+    .map(([category, amount]) => ({
+      category,
+      amount,
+      percentOfBudget: percentOf(amount, budgetTotal) ?? 0
+    }))
+    .sort((a, b) => b.amount - a.amount || a.category.localeCompare(b.category))
+    .slice(0, 3);
+
+  const totalDebt = params.debtItems.reduce((sum, item) => sum + item.amount, 0);
+  const monthlyEmiTotal = params.debtItems.reduce(
+    (sum, item) => sum + (item.monthly_emi ?? 0),
+    0
+  );
+  const activeWishlistItems = params.wishlistItems.filter((item) => item.is_active);
+  const activeWishlistTotal = activeWishlistItems.reduce((sum, item) => sum + item.amount, 0);
+  const forecast =
+    params.forecast ??
+    buildForecast({
+      monthlySalary: params.monthlySalary,
+      budgetItems: params.budgetItems,
+      debtItems: params.debtItems,
+      wishlistItems: params.wishlistItems,
+      startDate: params.startDate
+    });
+
+  const nextWishlist =
+    activeWishlistItems
+      .map((item) => {
+        const entry = forecast.wishlistForecastById.get(item.id);
+        return {
+          id: item.id,
+          name: item.name,
+          amount: item.amount,
+          monthsFromNow: entry?.monthsFromNow ?? null,
+          targetDate: entry?.targetDate ?? null
+        };
+      })
+      .filter((item) => item.targetDate !== null)
+      .sort((a, b) => {
+        const aTime = a.targetDate?.getTime() ?? Number.POSITIVE_INFINITY;
+        const bTime = b.targetDate?.getTime() ?? Number.POSITIVE_INFINITY;
+        return aTime - bTime;
+      })[0] ?? null;
+
+  return {
+    budgetTotal,
+    monthlySavings,
+    savingsRatePercent: percentOf(monthlySavings, params.monthlySalary),
+    topBudgetCategories,
+    totalDebt,
+    monthlyEmiTotal,
+    emiToSalaryPercent: percentOf(monthlyEmiTotal, params.monthlySalary),
+    activeWishlistCount: activeWishlistItems.length,
+    activeWishlistTotal,
+    nextWishlist
+  };
+}
+
 function emptyForecast(id: string): ForecastEntry {
   return { id, targetDate: null, monthsFromNow: null };
 }

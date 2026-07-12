@@ -13,7 +13,7 @@ export function AppShell({ children, userEmail, monthlySalary }: AppShellProps) 
   return (
     <main className="min-h-screen bg-canvas text-ink-900">
       <header className="sticky top-0 z-20 border-b border-line-faint bg-white/85 backdrop-blur">
-        <div className="mx-auto flex h-12 max-w-7xl items-center justify-between px-5">
+        <div className="mx-auto flex h-12 max-w-7xl items-center justify-between gap-3 px-3 sm:px-5">
           <Link href="/" className="focus-ring flex items-center gap-2 rounded">
             <span
               aria-hidden
@@ -21,15 +21,17 @@ export function AppShell({ children, userEmail, monthlySalary }: AppShellProps) 
             >
               RR
             </span>
-            <span className="text-sm font-medium text-ink-900">Raghu Rokda</span>
+            <span className="hidden text-sm font-medium text-ink-900 min-[380px]:inline">
+              Raghu Rokda
+            </span>
           </Link>
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 items-center gap-2">
             <Link
               href="/quotes"
               className="focus-ring inline-flex items-center gap-1.5 rounded-md border border-line px-3 py-1.5 text-sm text-ink-700 hover:bg-canvas"
             >
               <Quote className="size-4" />
-              Quotes
+              <span className="hidden sm:inline">Quotes</span>
             </Link>
             {userEmail ? (
               <HeaderProfile userEmail={userEmail} monthlySalary={monthlySalary ?? 0} />

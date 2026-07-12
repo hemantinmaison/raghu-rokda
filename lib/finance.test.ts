@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   buildForecast,
+  buildPlannerSummary,
   calculateMonthlySavings,
   formatMonthYear,
   simulateLoanPayoff
@@ -119,6 +120,58 @@ describe("finance forecasting", () => {
 
     expect(forecast.debtForecastById.get("loan")?.monthsFromNow).toBe(1);
     expect(forecast.wishlistForecastById.get("bike")?.monthsFromNow).toBe(1);
+  });
+
+  it("summarizes savings, category spend, debt pressure and wishlist affordability", () => {
+    const forecast = buildForecast({
+      monthlySalary: 100000,
+      budgetItems: [
+        budget({ id: "rent", amount: 30000, category: "Housing" }),
+        budget({ id: "food", amount: 20000, category: "Food" }),
+        budget({ id: "dining", amount: 10000, category: "Food" })
+      ],
+      debtItems: [
+        debt({ id: "home-loan", amount: 500000, monthly_emi: 12000 }),
+        debt({ id: "card", amount: 30000, monthly_emi: null })
+      ],
+      wishlistItems: [
+        wishlist({ id: "laptop", amount: 40000 }),
+        wishlist({ id: "paused", amount: 20000, is_active: false })
+      ],
+      startDate: new Date(2026, 0, 1)
+    });
+
+    const summary = buildPlannerSummary({
+      monthlySalary: 100000,
+      budgetItems: [
+        budget({ id: "rent", amount: 30000, category: "Housing" }),
+        budget({ id: "food", amount: 20000, category: "Food" }),
+        budget({ id: "dining", amount: 10000, category: "Food" })
+      ],
+      debtItems: [
+        debt({ id: "home-loan", amount: 500000, monthly_emi: 12000 }),
+        debt({ id: "card", amount: 30000, monthly_emi: null })
+      ],
+      wishlistItems: [
+        wishlist({ id: "laptop", amount: 40000 }),
+        wishlist({ id: "paused", amount: 20000, is_active: false })
+      ],
+      forecast
+    });
+
+    expect(summary.monthlySavings).toBe(40000);
+    expect(summary.savingsRatePercent).toBe(40);
+    expect(summary.topBudgetCategories[0]).toMatchObject({
+      category: "Food",
+      amount: 30000,
+      percentOfBudget: 50
+    });
+    expect(summary.totalDebt).toBe(530000);
+    expect(summary.monthlyEmiTotal).toBe(12000);
+    expect(summary.emiToSalaryPercent).toBe(12);
+    expect(summary.activeWishlistCount).toBe(1);
+    expect(summary.activeWishlistTotal).toBe(40000);
+    expect(summary.nextWishlist?.id).toBe("laptop");
   });
 });
 

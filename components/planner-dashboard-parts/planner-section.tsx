@@ -101,8 +101,8 @@ export function PlannerSection<T extends SectionItem>({
 
   return (
     <section className="rounded-md border border-line-faint bg-white shadow-sm">
-      <div className="flex items-center justify-between gap-3 border-b border-line-faint p-4">
-        <h3 className="text-xl font-semibold">{title}</h3>
+      <div className="flex flex-col gap-2 border-b border-line-faint p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+        <h3 className="text-lg font-semibold sm:text-xl">{title}</h3>
         {headerRight ?? (
           <p className="text-sm text-ink-400">
             {items.length} item{items.length === 1 ? "" : "s"}

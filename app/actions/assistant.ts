@@ -27,6 +27,7 @@ export type ExtractedItem = {
   category?: string;
   interest_rate?: number | null;
   tenure_months?: number | null;
+  monthly_emi?: number | null;
   details: string | null;
 };
 

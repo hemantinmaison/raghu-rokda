@@ -31,19 +31,19 @@ const TAB_LABEL: Record<PlannerKind, string> = {
 
 const ASK_SUGGESTIONS: Record<PlannerKind, string[]> = {
   budget: [
-    "Where is most of my money going?",
-    "How much am I saving each month?",
-    "Which categories should I cut first?"
+    "What should I change first across my planner?",
+    "Which budget category is slowing my goals?",
+    "Can I afford my wishlist after debts?"
   ],
   debt: [
-    "Which debt should I clear first?",
-    "When will I be debt-free?",
-    "How much interest am I carrying?"
+    "Which debt should I attack first?",
+    "How do my EMIs affect my wishlist?",
+    "What budget cut speeds up debt payoff?"
   ],
   wishlist: [
-    "What can I realistically afford soon?",
-    "Which wishlist item is furthest away?",
-    "How do I reach my goals faster?"
+    "What can I afford soon after debts?",
+    "Which wishlist item should wait?",
+    "How much more savings speeds this up?"
   ]
 };
 
@@ -219,7 +219,7 @@ export function ChatWidget({
         type="button"
         onClick={() => setIsOpen(true)}
         aria-label="Open money assistant"
-        className="focus-ring fixed bottom-5 right-5 z-40 flex size-12 items-center justify-center rounded-full bg-ink-900 text-white shadow-lg transition-transform hover:-translate-y-0.5"
+        className="focus-ring fixed bottom-4 right-4 z-40 flex size-12 items-center justify-center rounded-full bg-ink-900 text-white shadow-lg transition-transform hover:-translate-y-0.5 sm:bottom-5 sm:right-5"
       >
         <MessageCircle className="size-5" />
       </button>
@@ -229,7 +229,7 @@ export function ChatWidget({
   const suggestions = insertMode ? INSERT_SUGGESTIONS[activeTab] : ASK_SUGGESTIONS[activeTab];
 
   return (
-    <div className="fixed bottom-5 right-5 z-40 flex h-[560px] max-h-[calc(100vh-2.5rem)] w-[calc(100vw-2.5rem)] flex-col overflow-hidden rounded-xl border border-line bg-white shadow-2xl sm:w-[380px]">
+    <div className="fixed inset-x-3 bottom-3 top-3 z-40 flex w-auto flex-col overflow-hidden rounded-lg border border-line bg-white shadow-2xl sm:inset-auto sm:bottom-5 sm:right-5 sm:top-auto sm:h-[560px] sm:max-h-[calc(100vh-2.5rem)] sm:w-[380px] sm:rounded-xl">
       <datalist id={BUDGET_CATEGORY_LIST_ID}>
         {budgetCategories.map((category) => (
           <option key={category} value={category} />
@@ -245,7 +245,7 @@ export function ChatWidget({
           <p className="mt-0.5 text-xs text-ink-400">
             {insertMode
               ? `Adding items to your ${TAB_LABEL[activeTab]}`
-              : `Answering from your ${TAB_LABEL[activeTab]} data`}
+              : `Answering from your full planner · ${TAB_LABEL[activeTab]} open`}
           </p>
         </div>
         <button
@@ -264,7 +264,7 @@ export function ChatWidget({
             <p className="text-sm text-ink-500">
               {insertMode
                 ? `Describe the items to add to your ${TAB_LABEL[activeTab]} — I'll show them for you to review and confirm.`
-                : `Ask anything about your ${TAB_LABEL[activeTab]} — I'll answer from your own data.`}
+                : "Ask across your budget, debts and wishlist — I'll answer from your own data."}
             </p>
             <div className="flex flex-col gap-2">
               {suggestions.map((suggestion) => (
@@ -337,7 +337,7 @@ export function ChatWidget({
       >
         <div className="mb-2 flex items-center justify-between">
           <span className="text-xs font-medium text-ink-500">
-            {insertMode ? "Insert mode — add items" : "Ask mode — questions"}
+            {insertMode ? "Insert mode — add items" : "Ask mode — full planner"}
           </span>
           <button
             type="button"
@@ -367,11 +367,11 @@ export function ChatWidget({
               }
             }}
             rows={1}
-            maxLength={4000}
+            maxLength={insertMode ? 4000 : 2000}
             placeholder={
               insertMode
                 ? `Describe items to add to ${TAB_LABEL[activeTab].toLowerCase()}…`
-                : `Ask about your ${TAB_LABEL[activeTab].toLowerCase()}…`
+                : "Ask about budget, debt, or wishlist…"
             }
             className="focus-ring max-h-28 min-h-9 flex-1 resize-none rounded-md border border-line px-3 py-2 text-sm placeholder:text-[13px]"
           />
@@ -471,6 +471,12 @@ function ProposalCard({
                         className="w-24"
                       />
                       <NumberField
+                        value={item.monthly_emi ?? null}
+                        placeholder="EMI"
+                        onChange={(value) => onEditItem(index, { monthly_emi: value })}
+                        className="w-24"
+                      />
+                      <NumberField
                         value={item.tenure_months ?? null}
                         placeholder="Tenure mo"
                         onChange={(value) => onEditItem(index, { tenure_months: value })}
@@ -504,7 +510,7 @@ function ProposalCard({
         )}
 
         {status === "pending" ? (
-          <div className="flex gap-2 border-t border-line-faint p-2">
+          <div className="flex flex-col gap-2 border-t border-line-faint p-2 sm:flex-row">
             <button
               type="button"
               onClick={onConfirm}
