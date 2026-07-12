@@ -71,9 +71,9 @@ const DEBT_HEADERS: TableHeader[] = [
 const WISHLIST_HEADERS: TableHeader[] = [
   { label: "Name", icon: <CaseSensitive className="size-4" />, width: "26%" },
   { label: "Amount", icon: <IndianRupee className="size-4" />, align: "right", width: "15%" },
-  { label: "Active", icon: <Power className="size-4" />, width: "14%" },
   { label: "Forecast", icon: <CalendarCheck className="size-4" />, width: "21%" },
-  { label: "Details", icon: <FileText className="size-4" />, width: "24%" }
+  { label: "Details", icon: <FileText className="size-4" />, width: "24%" },
+  { label: "Active", icon: <Power className="size-4" />, width: "14%" }
 ];
 
 export const budgetConfig: SectionConfig<DashboardBudgetItem> = {
@@ -201,9 +201,9 @@ export const wishlistConfig: SectionConfig<DashboardWishlistItem> = {
   renderNewCells: (formId) => [
     <NewNameInput key="name" formId={formId} placeholder="Wishlist item" />,
     <NewNumberInput key="amount" formId={formId} name="amount" placeholder="0" required align="right" />,
-    <PlaceholderCell key="active">On after save</PlaceholderCell>,
     <PlaceholderCell key="forecast">Calculated after save</PlaceholderCell>,
-    <NewTextInput key="details" formId={formId} name="details" placeholder="Optional details" />
+    <NewTextInput key="details" formId={formId} name="details" placeholder="Optional details" />,
+    <PlaceholderCell key="active">On after save</PlaceholderCell>
   ],
   renderCells: (item, { forecast }) => [
     <EditableNameCell
@@ -219,11 +219,6 @@ export const wishlistConfig: SectionConfig<DashboardWishlistItem> = {
       align="right"
       format={formatCurrency}
       onSave={(amount) => updateWishlistItem(item.id, { amount: amount ?? undefined })}
-    />,
-    <EditableToggleCell
-      key="active"
-      value={item.is_active}
-      onSave={(is_active) => updateWishlistItem(item.id, { is_active })}
     />,
     item.is_active ? (
       <ForecastCell
@@ -245,6 +240,11 @@ export const wishlistConfig: SectionConfig<DashboardWishlistItem> = {
       key="details"
       value={item.details}
       onSave={(details) => updateWishlistItem(item.id, { details })}
+    />,
+    <EditableToggleCell
+      key="active"
+      value={item.is_active}
+      onSave={(is_active) => updateWishlistItem(item.id, { is_active })}
     />
   ]
 };

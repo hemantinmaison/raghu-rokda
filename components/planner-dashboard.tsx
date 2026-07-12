@@ -42,14 +42,22 @@ function savingsTone(value: number) {
   return "text-ink-700";
 }
 
-/** Compact savings figure shown top-right of the Debt / Wishlist titles. */
-function SavingsBadge({ value }: { value: number }) {
+/** Compact figure shown top-right of section titles. */
+function HeaderMetricBadge({
+  label,
+  value,
+  tone = savingsTone(value)
+}: {
+  label: string;
+  value: number;
+  tone?: string;
+}) {
   return (
     <div className="shrink-0 text-right">
       <p className="text-[11px] font-medium uppercase tracking-wide text-ink-400">
-        Monthly savings
+        {label}
       </p>
-      <p className={`text-sm font-semibold tabular-nums ${savingsTone(value)}`}>
+      <p className={`text-sm font-semibold tabular-nums ${tone}`}>
         {formatCurrency(value)}
       </p>
     </div>
@@ -136,6 +144,7 @@ export function PlannerDashboard({
     debt: debtView.length,
     wishlist: wishlistView.length
   };
+  const totalDebt = debtView.reduce((sum, item) => sum + item.amount, 0);
 
   return (
     <div className="mx-auto grid max-w-7xl gap-4 px-5 py-6">
@@ -206,7 +215,9 @@ export function PlannerDashboard({
               onItemsChange={(next) => commitReorder("debt", setDebtOrder, next)}
               forecastById={forecast.debtForecastById}
               sectionContext={sectionContext}
-              headerRight={<SavingsBadge value={forecast.monthlySavings} />}
+              headerRight={
+                <HeaderMetricBadge label="Monthly savings" value={forecast.monthlySavings} />
+              }
             />
           ) : (
             <PlannerSection
@@ -215,7 +226,13 @@ export function PlannerDashboard({
               onItemsChange={(next) => commitReorder("wishlist", setWishlistOrder, next)}
               forecastById={forecast.wishlistForecastById}
               sectionContext={sectionContext}
-              headerRight={<SavingsBadge value={forecast.monthlySavings} />}
+              headerRight={
+                <HeaderMetricBadge
+                  label="Total debt"
+                  value={totalDebt}
+                  tone={totalDebt > 0 ? "text-danger-700" : "text-ink-700"}
+                />
+              }
             />
           )}
         </div>

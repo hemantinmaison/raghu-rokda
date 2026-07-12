@@ -4,10 +4,20 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { EmojiPickerButton } from "./emoji-picker-button";
 
 const inputClass =
-  "focus-ring w-full min-w-0 rounded border border-line bg-white px-1.5 py-1 text-sm text-ink-900";
+  "focus-ring absolute inset-0 box-border h-full w-full min-w-0 rounded border border-line bg-white px-1.5 text-sm leading-none text-ink-900";
+const textareaClass =
+  "focus-ring absolute left-0 top-0 z-20 box-border h-20 w-full min-w-0 resize-y rounded border border-line bg-white px-1.5 py-1 text-sm leading-relaxed text-ink-900 shadow-sm";
+const displayButtonClass =
+  "absolute inset-0 box-border h-full w-full min-w-0 truncate rounded px-1 text-left text-sm leading-none hover:bg-row-hover";
+const editControlFrameClass = "relative block h-7 min-w-0";
+const multilineTextLength = 48;
 
 function errorMessage(error: unknown) {
   return error instanceof Error ? error.message : "Could not save.";
+}
+
+function usesMultilineEditor(value: string) {
+  return value.includes("\n") || value.trim().length > multilineTextLength;
 }
 
 type NamePatch = { name?: string; emoji?: string | null };
@@ -72,37 +82,39 @@ export function EditableNameCell({
   return (
     <div className="flex min-w-0 items-center gap-1.5">
       <EmojiPickerButton value={localEmoji} onSelect={handleEmoji} />
-      {isEditing ? (
-        <input
-          ref={inputRef}
-          value={draft}
-          size={1}
-          onChange={(event) => setDraft(event.target.value)}
-          onBlur={commitName}
-          onKeyDown={(event) => {
-            if (event.key === "Enter") {
-              event.preventDefault();
-              commitName();
-            } else if (event.key === "Escape") {
+      <span className={`${editControlFrameClass} flex-1`}>
+        {isEditing ? (
+          <input
+            ref={inputRef}
+            value={draft}
+            size={1}
+            onChange={(event) => setDraft(event.target.value)}
+            onBlur={commitName}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                event.preventDefault();
+                commitName();
+              } else if (event.key === "Escape") {
+                setDraft(localName);
+                setIsEditing(false);
+              }
+            }}
+            className={inputClass}
+          />
+        ) : (
+          <button
+            type="button"
+            onClick={() => {
               setDraft(localName);
-              setIsEditing(false);
-            }
-          }}
-          className={inputClass}
-        />
-      ) : (
-        <button
-          type="button"
-          onClick={() => {
-            setDraft(localName);
-            setIsEditing(true);
-          }}
-          title={error ?? undefined}
-          className="min-w-0 flex-1 truncate rounded px-1 py-1 text-left text-sm text-ink-900 hover:bg-row-hover"
-        >
-          {localName}
-        </button>
-      )}
+              setIsEditing(true);
+            }}
+            title={error ?? undefined}
+            className={`${displayButtonClass} text-ink-900`}
+          >
+            {localName}
+          </button>
+        )}
+      </span>
     </div>
   );
 }
@@ -122,11 +134,18 @@ export function EditableTextCell({
   const [error, setError] = useState<string | null>(null);
   const [, startTransition] = useTransition();
   const inputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const isMultiline = usesMultilineEditor(draft);
 
   useEffect(() => setLocal(value), [value]);
   useEffect(() => {
-    if (isEditing) inputRef.current?.focus();
-  }, [isEditing]);
+    if (!isEditing) return;
+    if (isMultiline) {
+      textareaRef.current?.focus();
+    } else {
+      inputRef.current?.focus();
+    }
+  }, [isEditing, isMultiline]);
 
   function commit() {
     setIsEditing(false);
@@ -144,44 +163,62 @@ export function EditableTextCell({
     });
   }
 
-  if (isEditing) {
-    return (
-      <input
-        ref={inputRef}
-        value={draft}
-        size={1}
-        onChange={(event) => setDraft(event.target.value)}
-        onBlur={commit}
-        onKeyDown={(event) => {
-          if (event.key === "Enter") {
-            event.preventDefault();
-            commit();
-          } else if (event.key === "Escape") {
-            setDraft(local ?? "");
-            setIsEditing(false);
-          }
-        }}
-        className={inputClass}
-      />
-    );
-  }
-
   return (
-    <button
-      type="button"
-      onClick={() => {
-        setDraft(local ?? "");
-        setIsEditing(true);
-      }}
-      title={error ?? undefined}
-      className="w-full min-w-0 truncate rounded px-1 py-1 text-left text-sm hover:bg-row-hover"
-    >
-      {local ? (
-        <span className="text-ink-500">{local}</span>
+    <span className={`${editControlFrameClass} w-full`}>
+      {isEditing && isMultiline ? (
+        <textarea
+          ref={textareaRef}
+          value={draft}
+          rows={3}
+          onChange={(event) => setDraft(event.target.value)}
+          onBlur={commit}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+              event.preventDefault();
+              commit();
+            } else if (event.key === "Escape") {
+              setDraft(local ?? "");
+              setIsEditing(false);
+            }
+          }}
+          className={textareaClass}
+        />
+      ) : isEditing ? (
+        <input
+          ref={inputRef}
+          value={draft}
+          size={1}
+          onChange={(event) => setDraft(event.target.value)}
+          onBlur={commit}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              commit();
+            } else if (event.key === "Escape") {
+              setDraft(local ?? "");
+              setIsEditing(false);
+            }
+          }}
+          className={inputClass}
+        />
       ) : (
-        <span className="text-ink-200">{placeholder}</span>
+        <button
+          type="button"
+          onClick={() => {
+            setDraft(local ?? "");
+            setIsEditing(true);
+          }}
+          title={error ?? undefined}
+          className={displayButtonClass}
+        >
+          {local ? (
+            <span className="text-ink-500">{local}</span>
+          ) : (
+            <span className="text-ink-200">{placeholder}</span>
+          )}
+        </button>
       )}
-    </button>
+    </span>
   );
 }
 
@@ -252,49 +289,49 @@ export function EditableNumberCell({
     });
   }
 
-  if (isEditing) {
-    return (
-      <input
-        ref={inputRef}
-        value={draft}
-        type="number"
-        size={1}
-        step={step}
-        min={required ? "1" : "0"}
-        onChange={(event) => setDraft(event.target.value)}
-        onBlur={commit}
-        onKeyDown={(event) => {
-          if (event.key === "Enter") {
-            event.preventDefault();
-            commit();
-          } else if (event.key === "Escape") {
-            setDraft(local === null ? "" : String(local));
-            setIsEditing(false);
-          }
-        }}
-        className={`${inputClass} tabular-nums ${align === "right" ? "text-right" : ""}`}
-      />
-    );
-  }
-
   return (
-    <button
-      type="button"
-      onClick={() => {
-        setDraft(local === null ? "" : String(local));
-        setIsEditing(true);
-      }}
-      title={error ?? undefined}
-      className={`w-full min-w-0 truncate rounded px-1 py-1 text-sm tabular-nums hover:bg-row-hover ${
-        align === "right" ? "text-right" : "text-left"
-      }`}
-    >
-      {local === null ? (
-        <span className="text-ink-200">{placeholder}</span>
+    <span className={`${editControlFrameClass} w-full`}>
+      {isEditing ? (
+        <input
+          ref={inputRef}
+          value={draft}
+          type="number"
+          size={1}
+          step={step}
+          min={required ? "1" : "0"}
+          onChange={(event) => setDraft(event.target.value)}
+          onBlur={commit}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              commit();
+            } else if (event.key === "Escape") {
+              setDraft(local === null ? "" : String(local));
+              setIsEditing(false);
+            }
+          }}
+          className={`${inputClass} tabular-nums ${align === "right" ? "text-right" : ""}`}
+        />
       ) : (
-        <span className="text-ink-900">{format(local)}</span>
+        <button
+          type="button"
+          onClick={() => {
+            setDraft(local === null ? "" : String(local));
+            setIsEditing(true);
+          }}
+          title={error ?? undefined}
+          className={`${displayButtonClass} tabular-nums ${
+            align === "right" ? "text-right" : "text-left"
+          }`}
+        >
+          {local === null ? (
+            <span className="text-ink-200">{placeholder}</span>
+          ) : (
+            <span className="text-ink-900">{format(local)}</span>
+          )}
+        </button>
       )}
-    </button>
+    </span>
   );
 }
 
