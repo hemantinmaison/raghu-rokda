@@ -343,16 +343,15 @@ begin
   select id into v_savings from public.categories where user_id = p_user_id and lower(name) = 'savings';
   insert into public.budget_items (user_id, name, emoji, amount, category_id, details, sort_order)
   values
-    (p_user_id, 'Rent', '🏠', 8000, v_housing, 'Monthly housing cost', 0),
-    (p_user_id, 'Groceries', '🛒', 4000, v_food, 'Food and household essentials', 1),
-    (p_user_id, 'Transport', '🚌', 2000, v_transport, 'Fuel, public transport, or cab fares', 2),
-    (p_user_id, 'Mobile & Internet', '📱', 1000, v_bills, 'Phone and internet plans', 3),
-    (p_user_id, 'Electricity & Water', '💡', 1500, v_bills, 'Monthly utility bills', 4),
-    (p_user_id, 'Monthly Savings', '💰', 3000, v_savings, 'Planned monthly savings', 5);
+    (p_user_id, 'Rent', '🏠', 8000, v_housing, 'Landlord’s monthly subscription', 0),
+    (p_user_id, 'Groceries & Ghee', '🛒', 3500, v_food, 'Thoda Ghee Khaya karo Ashok', 1),
+    (p_user_id, 'E20 Petrol', '⛽', 2000, v_transport, 'Ganne ka Juice', 2),
+    (p_user_id, 'Mobile Recharge', '📱', 500, v_bills, 'Data khatam, duniya khatam', 3),
+    (p_user_id, 'Electricity & Water', '💡', 1500, v_bills, 'AC chala toh meter bhi daudega', 4),
+    (p_user_id, 'Monthly Investment', '💰', 2500, v_savings, 'Monthly SIP investment', 5);
   insert into public.debt_items
     (user_id, name, emoji, amount, interest_rate, tenure_months, monthly_emi, details, sort_order)
-  values (p_user_id, 'iPhone 17 Pro Max 2TB', '📱', 229900, null, null, null,
-    'Latest highest-capacity iPhone; update financing details if purchased.', 0);
+  values (p_user_id, 'iPhone', '📱', 134900, null, null, null, null, 0);
   insert into public.wishlist_items (user_id, name, emoji, amount, details, is_active, sort_order)
   values
     (p_user_id, 'Emergency Fund', '🛟', 75000, 'Target of three months’ salary', true, 0),
