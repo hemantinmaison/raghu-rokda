@@ -218,7 +218,7 @@ export function ChatWidget({
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        aria-label="Open money assistant"
+        aria-label="Open Raghu Rokda AI Assistant"
         className="focus-ring fixed bottom-4 right-4 z-40 flex size-12 items-center justify-center rounded-full bg-ink-900 text-white shadow-lg transition-transform hover:-translate-y-0.5 sm:bottom-5 sm:right-5"
       >
         <MessageCircle className="size-5" />
@@ -239,8 +239,9 @@ export function ChatWidget({
       <header className="flex items-start justify-between gap-2 border-b border-line-faint px-4 py-3">
         <div>
           <p className="flex items-center gap-1.5 text-sm font-semibold text-ink-900">
-            <Sparkles className="size-4 text-teal-700" />
-            Money assistant
+            {/* <Sparkles className="size-4 text-teal-700" /> */}
+            ₹₹
+            Raghu - Your Rokda Assistant
           </p>
           <p className="mt-0.5 text-xs text-ink-400">
             {insertMode

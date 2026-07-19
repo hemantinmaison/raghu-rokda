@@ -38,7 +38,7 @@ export default async function LoginPage({
             aria-hidden
             className="inline-flex size-8 items-center justify-center rounded-md bg-ink-900 text-sm font-semibold text-white"
           >
-            RR
+            ₹₹
           </span>
           <span className="text-lg font-medium">Raghu Rokda</span>
         </div>

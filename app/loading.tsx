@@ -3,7 +3,7 @@ export default function Loading() {
     <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-canvas px-5 text-ink-900">
       <div className="flex items-center gap-2.5">
         <span className="inline-flex size-9 items-center justify-center rounded-lg bg-ink-900 text-lg font-semibold text-white">
-          RR
+          ₹₹
         </span>
         <span className="text-lg font-medium tracking-tight">Raghu Rokda</span>
       </div>

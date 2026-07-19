@@ -7,7 +7,7 @@ export function SkeletonHeader() {
       <div className="mx-auto flex h-12 max-w-7xl items-center justify-between px-5">
         <div className="flex items-center gap-2">
           <span className="inline-flex size-6 items-center justify-center rounded-md bg-ink-900 text-[13px] font-semibold text-white">
-            RR
+            ₹₹
           </span>
           <span className="text-sm font-medium text-ink-900">Raghu Rokda</span>
         </div>
