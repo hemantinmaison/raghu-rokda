@@ -47,7 +47,11 @@ const emojiField: z.ZodType<string | null, z.ZodTypeDef, unknown> = z
   .optional()
   .transform((v): string | null => (v === undefined || v === null || v === "" ? null : v));
 
-export type ProfileInput = { monthly_salary: number };
+export type ProfileInput = {
+  monthly_salary: number;
+  working_days_per_month: number;
+  working_hours_per_day: number;
+};
 export type BudgetItemInput = {
   name: string;
   emoji: string | null;
@@ -80,7 +84,19 @@ export type WishlistItemInput = {
 };
 
 export const profileSchema: z.ZodType<ProfileInput, z.ZodTypeDef, unknown> = z.object({
-  monthly_salary: z.coerce.number().finite().min(0, "Salary cannot be negative")
+  monthly_salary: z.coerce.number().finite().min(0, "Salary cannot be negative"),
+  working_days_per_month: z.coerce
+    .number()
+    .int("Working days must be a whole number")
+    .min(1, "Working days must be at least 1")
+    .max(31, "Working days cannot exceed 31")
+    .default(22),
+  working_hours_per_day: z.coerce
+    .number()
+    .finite()
+    .positive("Working hours must be greater than zero")
+    .max(24, "Working hours cannot exceed 24")
+    .default(8)
 });
 
 export const budgetItemSchema: z.ZodType<BudgetItemInput, z.ZodTypeDef, unknown> = z.object({

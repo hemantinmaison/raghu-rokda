@@ -9,10 +9,21 @@ create table if not exists public.profiles (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null unique references auth.users(id) on delete cascade,
   monthly_salary numeric(12, 2) not null default 0 check (monthly_salary >= 0),
+  working_days_per_month smallint not null default 22
+    check (working_days_per_month between 1 and 31),
+  working_hours_per_day numeric(4, 2) not null default 8
+    check (working_hours_per_day > 0 and working_hours_per_day <= 24),
   currency text not null default 'INR',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table public.profiles
+  add column if not exists working_days_per_month smallint not null default 22
+  check (working_days_per_month between 1 and 31);
+alter table public.profiles
+  add column if not exists working_hours_per_day numeric(4, 2) not null default 8
+  check (working_hours_per_day > 0 and working_hours_per_day <= 24);
 
 create table if not exists public.categories (
   id uuid primary key default gen_random_uuid(),

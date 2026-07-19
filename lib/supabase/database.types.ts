@@ -8,6 +8,8 @@ export type Database = {
           id: string;
           user_id: string;
           monthly_salary: number;
+          working_days_per_month: number;
+          working_hours_per_day: number;
           currency: string;
           created_at: string;
           updated_at: string;
@@ -16,6 +18,8 @@ export type Database = {
           id?: string;
           user_id: string;
           monthly_salary?: number;
+          working_days_per_month?: number;
+          working_hours_per_day?: number;
           currency?: string;
           created_at?: string;
           updated_at?: string;
@@ -24,6 +28,8 @@ export type Database = {
           id?: string;
           user_id?: string;
           monthly_salary?: number;
+          working_days_per_month?: number;
+          working_hours_per_day?: number;
           currency?: string;
           created_at?: string;
           updated_at?: string;

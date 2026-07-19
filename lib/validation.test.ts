@@ -16,8 +16,19 @@ describe("validation", () => {
   });
 
   it("profileSchema coerces and rejects negatives", () => {
-    expect(profileSchema.parse({ monthly_salary: "50000" })).toEqual({ monthly_salary: 50000 });
+    expect(profileSchema.parse({ monthly_salary: "50000" })).toEqual({
+      monthly_salary: 50000,
+      working_days_per_month: 22,
+      working_hours_per_day: 8
+    });
     expect(profileSchema.safeParse({ monthly_salary: -1 }).success).toBe(false);
+    expect(
+      profileSchema.safeParse({
+        monthly_salary: 50000,
+        working_days_per_month: 32,
+        working_hours_per_day: 8
+      }).success
+    ).toBe(false);
   });
 
   it("budgetItemSchema enforces required name/amount/category", () => {

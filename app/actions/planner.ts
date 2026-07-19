@@ -80,12 +80,15 @@ async function ensureCategory(supabase: Supabase, name: string) {
 
 export async function updateSalary(formData: FormData) {
   const { supabase, user } = await requireUser();
-  const parsed = parseOrThrow(profileSchema, readFields(formData, ["monthly_salary"]));
+  const parsed = parseOrThrow(
+    profileSchema,
+    readFields(formData, ["monthly_salary", "working_days_per_month", "working_hours_per_day"])
+  );
 
   const { error } = await supabase
     .from("profiles")
     .upsert(
-      { user_id: user.id, monthly_salary: parsed.monthly_salary, currency: "INR" },
+      { user_id: user.id, ...parsed, currency: "INR" },
       { onConflict: "user_id" }
     );
 

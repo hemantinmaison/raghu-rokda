@@ -7,9 +7,17 @@ type AppShellProps = {
   children: ReactNode;
   userEmail?: string;
   monthlySalary?: number;
+  workingDaysPerMonth?: number;
+  workingHoursPerDay?: number;
 };
 
-export function AppShell({ children, userEmail, monthlySalary }: AppShellProps) {
+export function AppShell({
+  children,
+  userEmail,
+  monthlySalary,
+  workingDaysPerMonth,
+  workingHoursPerDay
+}: AppShellProps) {
   return (
     <main className="min-h-screen bg-canvas text-ink-900">
       <header className="sticky top-0 z-20 border-b border-line-faint bg-white/85 backdrop-blur">
@@ -34,7 +42,12 @@ export function AppShell({ children, userEmail, monthlySalary }: AppShellProps) 
               <span className="hidden sm:inline">Quotes</span>
             </Link>
             {userEmail ? (
-              <HeaderProfile userEmail={userEmail} monthlySalary={monthlySalary ?? 0} />
+              <HeaderProfile
+                userEmail={userEmail}
+                monthlySalary={monthlySalary ?? 0}
+                workingDaysPerMonth={workingDaysPerMonth ?? 22}
+                workingHoursPerDay={workingHoursPerDay ?? 8}
+              />
             ) : (
               <Link
                 href="/login"

@@ -21,18 +21,31 @@ export default async function QuotesPage() {
   }
 
   let monthlySalary = 0;
+  let workingDaysPerMonth = 22;
+  let workingHoursPerDay = 8;
   let likedIds: string[] = [];
   if (user) {
     const [profileResult, likesResult] = await Promise.all([
-      supabase.from("profiles").select("monthly_salary").eq("user_id", user.id).maybeSingle(),
+      supabase
+        .from("profiles")
+        .select("monthly_salary,working_days_per_month,working_hours_per_day")
+        .eq("user_id", user.id)
+        .maybeSingle(),
       supabase.from("quote_likes").select("quote_id").eq("user_id", user.id)
     ]);
     monthlySalary = profileResult.data?.monthly_salary ?? 0;
+    workingDaysPerMonth = profileResult.data?.working_days_per_month ?? 22;
+    workingHoursPerDay = profileResult.data?.working_hours_per_day ?? 8;
     likedIds = (likesResult.data ?? []).map((row) => row.quote_id);
   }
 
   return (
-    <AppShell userEmail={user?.email ?? undefined} monthlySalary={monthlySalary}>
+    <AppShell
+      userEmail={user?.email ?? undefined}
+      monthlySalary={monthlySalary}
+      workingDaysPerMonth={workingDaysPerMonth}
+      workingHoursPerDay={workingHoursPerDay}
+    >
       <QuotesView
         isAuthenticated={Boolean(user)}
         likeCounts={likeCounts}

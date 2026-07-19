@@ -8,7 +8,10 @@ export type WishlistItem = Database["public"]["Tables"]["wishlist_items"]["Row"]
 
 export type PlannerKind = "budget" | "debt" | "wishlist";
 
-export type DashboardProfile = Pick<Profile, "monthly_salary" | "currency">;
+export type DashboardProfile = Pick<
+  Profile,
+  "monthly_salary" | "working_days_per_month" | "working_hours_per_day" | "currency"
+>;
 export type DashboardCategory = Pick<
   Category,
   "id" | "name" | "emoji" | "color" | "sort_order"

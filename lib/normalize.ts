@@ -14,6 +14,8 @@ function toNumber(value: number | string | null | undefined) {
 export function normalizeProfile(profile: DashboardProfile | null): DashboardProfile {
   return {
     monthly_salary: toNumber(profile?.monthly_salary),
+    working_days_per_month: toNumber(profile?.working_days_per_month ?? 22),
+    working_hours_per_day: toNumber(profile?.working_hours_per_day ?? 8),
     currency: profile?.currency ?? "INR"
   };
 }

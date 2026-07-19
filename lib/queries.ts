@@ -34,7 +34,11 @@ export async function fetchDashboardData(userId: string): Promise<DashboardLoadR
   if (initializationResult.error) return { ok: false, error: initializationResult.error.message };
 
   const [profileResult, categoryResult, budgetResult, debtResult, wishlistResult] = await Promise.all([
-    supabase.from("profiles").select("monthly_salary,currency").eq("user_id", userId).maybeSingle(),
+    supabase
+      .from("profiles")
+      .select("monthly_salary,working_days_per_month,working_hours_per_day,currency")
+      .eq("user_id", userId)
+      .maybeSingle(),
     supabase
       .from("categories")
       .select("id,name,emoji,color,sort_order")

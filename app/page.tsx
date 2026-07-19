@@ -24,7 +24,12 @@ export default async function Home() {
   }
 
   return (
-    <AppShell userEmail={userEmail} monthlySalary={result.data.profile.monthly_salary}>
+    <AppShell
+      userEmail={userEmail}
+      monthlySalary={result.data.profile.monthly_salary}
+      workingDaysPerMonth={result.data.profile.working_days_per_month}
+      workingHoursPerDay={result.data.profile.working_hours_per_day}
+    >
       <PlannerDashboard {...result.data} />
     </AppShell>
   );
