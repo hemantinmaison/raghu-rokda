@@ -101,6 +101,17 @@
   }
 }
 
+@keyframes rr-word-enter {
+  from {
+    opacity: 0;
+    transform: translateY(55%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .rr-rise {
   opacity: 0;
   animation: rr-rise 0.95s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -112,6 +123,10 @@
 
 .rr-marquee {
   animation: rr-marquee 42s linear infinite;
+}
+
+.rr-word-enter {
+  animation: rr-word-enter 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .rr-grain {
@@ -138,7 +153,8 @@
     opacity: 1;
   }
   .rr-float,
-  .rr-marquee {
+  .rr-marquee,
+  .rr-word-enter {
     animation: none;
   }
   .rr-loadbar {

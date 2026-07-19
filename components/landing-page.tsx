@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Fraunces, Hanken_Grotesk } from "next/font/google";
 import { ArrowRight, Gift, ReceiptIndianRupee, Wallet } from "lucide-react";
 import { QUOTES, themeMeta, type Quote } from "@/lib/quotes";
+import { RotatingHeroWord } from "@/components/rotating-hero-word";
 
 const display = Fraunces({
   subsets: ["latin"],
@@ -117,11 +118,11 @@ export function LandingPage() {
         </p>
 
         <h1
-          className="rr-rise mt-7 max-w-[16ch] font-[family-name:var(--font-display)] text-[clamp(2.9rem,8.5vw,7.2rem)] font-black leading-[0.95] tracking-[-0.02em]"
+          className="rr-rise mt-7 max-w-[16ch] font-[family-name:var(--font-display)] text-[clamp(2.9rem,8.5vw,6.5rem)] font-black leading-[0.95] tracking-[-0.02em]"
           style={{ animationDelay: "0.13s" }}
         >
           Take command of your{" "}
-          <span className="italic text-[var(--green)]">rokda</span>.
+          <RotatingHeroWord />
         </h1>
 
         <div
