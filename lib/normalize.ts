@@ -1,5 +1,6 @@
 import type {
   DashboardBudgetItem,
+  DashboardCategory,
   DashboardDebtItem,
   DashboardProfile,
   DashboardWishlistItem
@@ -29,6 +30,14 @@ export function normalizeBudgetItem(item: DashboardBudgetItem): DashboardBudgetI
     emoji: normalizeEmoji(item.emoji),
     amount: toNumber(item.amount),
     sort_order: toNumber(item.sort_order)
+  };
+}
+
+export function normalizeCategory(category: DashboardCategory): DashboardCategory {
+  return {
+    ...category,
+    emoji: normalizeEmoji(category.emoji),
+    sort_order: toNumber(category.sort_order)
   };
 }
 

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   budgetCategorySchema,
   budgetItemSchema,
+  categorySchema,
   debtItemSchema,
   profileSchema,
   uuidSchema,
@@ -41,6 +42,15 @@ describe("validation", () => {
   it("budgetCategorySchema trims and requires a category", () => {
     expect(budgetCategorySchema.parse({ category: "  Food  " })).toEqual({ category: "Food" });
     expect(budgetCategorySchema.safeParse({ category: "" }).success).toBe(false);
+  });
+
+  it("categorySchema validates category metadata", () => {
+    expect(categorySchema.parse({ name: "  Housing  ", emoji: "🏠", color: "brown" })).toEqual({
+      name: "Housing",
+      emoji: "🏠",
+      color: "brown"
+    });
+    expect(categorySchema.safeParse({ name: "Housing", emoji: null, color: "neon" }).success).toBe(false);
   });
 
   it("debtItemSchema treats blank/null/undefined optional fields as null", () => {

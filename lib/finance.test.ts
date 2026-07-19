@@ -6,7 +6,7 @@ import {
   formatMonthYear,
   simulateLoanPayoff
 } from "@/lib/finance";
-import type { BudgetItem, DebtItem, WishlistItem } from "@/lib/types";
+import type { DashboardBudgetItem, DebtItem, WishlistItem } from "@/lib/types";
 
 const base = {
   user_id: "user-1",
@@ -15,13 +15,14 @@ const base = {
   sort_order: 0
 };
 
-function budget(overrides: Partial<BudgetItem>): BudgetItem {
+function budget(overrides: Partial<DashboardBudgetItem>): DashboardBudgetItem {
   return {
     ...base,
     id: "budget-1",
     name: "Rent",
     emoji: null,
     amount: 30000,
+    category_id: "category-1",
     category: "Rent",
     details: null,
     ...overrides

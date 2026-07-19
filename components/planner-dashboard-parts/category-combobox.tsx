@@ -2,13 +2,14 @@
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { ChevronDown, Plus } from "lucide-react";
+import { ChevronDown, Plus, Settings2 } from "lucide-react";
+import type { DashboardCategory } from "@/lib/types";
 import { CategoryTag } from "./category-tag";
 
 type CategoryComboboxProps = {
   formId?: string;
   name: string;
-  options: string[];
+  options: DashboardCategory[];
   value?: string;
   defaultValue?: string;
   placeholder?: string;
@@ -16,6 +17,7 @@ type CategoryComboboxProps = {
   disabled?: boolean;
   variant?: "default" | "compact";
   onValueChange?: (value: string) => void;
+  onManageCategories?: () => void;
 };
 
 const POPOVER_WIDTH = 260;
@@ -33,7 +35,8 @@ export function CategoryCombobox({
   required = false,
   disabled = false,
   variant = "default",
-  onValueChange
+  onValueChange,
+  onManageCategories
 }: CategoryComboboxProps) {
   const [value, setValue] = useState(defaultValue);
   const [query, setQuery] = useState("");
@@ -49,13 +52,16 @@ export function CategoryCombobox({
   const filtered = useMemo(() => {
     if (normalizedQuery.length === 0) return options;
     return options.filter((option) =>
-      option.toLowerCase().includes(normalizedQuery.toLowerCase())
+      option.name.toLowerCase().includes(normalizedQuery.toLowerCase())
     );
   }, [normalizedQuery, options]);
 
   const canCreate =
     normalizedQuery.length > 0 &&
-    !options.some((option) => option.toLowerCase() === normalizedQuery.toLowerCase());
+    !options.some((option) => option.name.toLowerCase() === normalizedQuery.toLowerCase());
+  const selectedCategory = options.find(
+    (option) => option.name.toLowerCase() === selectedValue.toLowerCase()
+  );
 
   useLayoutEffect(() => {
     if (!isOpen || !buttonRef.current) return;
@@ -109,7 +115,7 @@ export function CategoryCombobox({
   function handleInputKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.key === "Enter") {
       event.preventDefault();
-      const choice = filtered[0] ?? (canCreate ? normalizedQuery : "");
+      const choice = filtered[0]?.name ?? (canCreate ? normalizedQuery : "");
       if (choice) commit(choice);
     }
   }
@@ -133,7 +139,11 @@ export function CategoryCombobox({
       >
         <span className="min-w-0">
           {selectedValue ? (
-            <CategoryTag value={selectedValue} />
+            <CategoryTag
+              value={selectedValue}
+              emoji={selectedCategory?.emoji}
+              color={selectedCategory?.color}
+            />
           ) : (
             <span className="text-ink-100">{placeholder}</span>
           )}
@@ -167,13 +177,13 @@ export function CategoryCombobox({
               </div>
               <ul className="max-h-60 overflow-y-auto py-1 text-sm">
                 {filtered.map((option) => (
-                  <li key={option}>
+                  <li key={option.id}>
                     <button
                       type="button"
-                      onClick={() => commit(option)}
+                      onClick={() => commit(option.name)}
                       className="flex w-full items-center px-3 py-2 text-left hover:bg-canvas"
                     >
-                      <CategoryTag value={option} />
+                      <CategoryTag value={option.name} emoji={option.emoji} color={option.color} />
                     </button>
                   </li>
                 ))}
@@ -195,6 +205,21 @@ export function CategoryCombobox({
                   <li className="px-3 py-2 text-ink-300">No categories yet</li>
                 ) : null}
               </ul>
+              {onManageCategories ? (
+                <div className="border-t border-line-faint p-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsOpen(false);
+                      onManageCategories();
+                    }}
+                    className="flex w-full items-center gap-2 rounded px-2 py-2 text-left text-sm text-ink-500 hover:bg-canvas hover:text-ink-800"
+                  >
+                    <Settings2 className="size-4" aria-hidden />
+                    Manage categories
+                  </button>
+                </div>
+              ) : null}
             </div>,
             document.body
           )

@@ -30,6 +30,39 @@ export type Database = {
         };
         Relationships: [];
       };
+      categories: {
+        Row: {
+          id: string;
+          user_id: string;
+          name: string;
+          emoji: string | null;
+          color: string;
+          sort_order: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          name: string;
+          emoji?: string | null;
+          color?: string;
+          sort_order?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          name?: string;
+          emoji?: string | null;
+          color?: string;
+          sort_order?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       budget_items: {
         Row: {
           id: string;
@@ -37,7 +70,7 @@ export type Database = {
           name: string;
           emoji: string | null;
           amount: number;
-          category: string;
+          category_id: string;
           details: string | null;
           sort_order: number;
           created_at: string;
@@ -49,7 +82,7 @@ export type Database = {
           name: string;
           emoji?: string | null;
           amount: number;
-          category: string;
+          category_id: string;
           details?: string | null;
           sort_order?: number;
           created_at?: string;
@@ -61,13 +94,21 @@ export type Database = {
           name?: string;
           emoji?: string | null;
           amount?: number;
-          category?: string;
+          category_id?: string;
           details?: string | null;
           sort_order?: number;
           created_at?: string;
           updated_at?: string;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "budget_items_category_user_fkey";
+            columns: ["category_id", "user_id"];
+            isOneToOne: false;
+            referencedRelation: "categories";
+            referencedColumns: ["id", "user_id"];
+          }
+        ];
       };
       debt_items: {
         Row: {
@@ -176,6 +217,22 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      delete_category: {
+        Args: { p_category_id: string };
+        Returns: undefined;
+      };
+      ensure_category: {
+        Args: { p_name: string };
+        Returns: string;
+      };
+      ensure_user_finances: {
+        Args: Record<string, never>;
+        Returns: boolean;
+      };
+      reorder_categories: {
+        Args: { p_ids: string[] };
+        Returns: undefined;
+      };
       reorder_items: {
         Args: { p_kind: string; p_ids: string[] };
         Returns: undefined;

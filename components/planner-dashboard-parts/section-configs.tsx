@@ -53,7 +53,7 @@ export type SectionConfig<T extends SectionItem> = {
 
 const BUDGET_HEADERS: TableHeader[] = [
   { label: "Name", icon: <CaseSensitive className="size-4" />, width: "30%" },
-  { label: "Type", icon: <ChevronDown className="size-4" />, width: "18%" },
+  { label: "Category", icon: <ChevronDown className="size-4" />, width: "18%" },
   { label: "Amount", icon: <IndianRupee className="size-4" />, align: "right", width: "14%" },
   { label: "Details", icon: <FileText className="size-4" />, width: "28%" }
 ];
@@ -81,13 +81,20 @@ export const budgetConfig: SectionConfig<DashboardBudgetItem> = {
   title: "Monthly Budget",
   headers: BUDGET_HEADERS,
   createAction: createBudgetItem,
-  renderNewCells: (formId, { budgetCategories }) => [
+  renderNewCells: (formId, { categories, onManageCategories }) => [
     <NewNameInput key="name" formId={formId} placeholder="Budget name" />,
-    <CategoryCombobox key="category" formId={formId} name="category" options={budgetCategories} required />,
+    <CategoryCombobox
+      key="category"
+      formId={formId}
+      name="category"
+      options={categories}
+      required
+      onManageCategories={onManageCategories}
+    />,
     <NewNumberInput key="amount" formId={formId} name="amount" placeholder="0" required align="right" />,
     <NewTextInput key="details" formId={formId} name="details" placeholder="Optional details" />
   ],
-  renderCells: (item, { budgetCategories }) => [
+  renderCells: (item, { categories, onManageCategories }) => [
     <EditableNameCell
       key="name"
       name={item.name}
@@ -98,7 +105,8 @@ export const budgetConfig: SectionConfig<DashboardBudgetItem> = {
       key="category"
       itemId={item.id}
       value={item.category}
-      options={budgetCategories}
+      options={categories}
+      onManageCategories={onManageCategories}
     />,
     <EditableNumberCell
       key="amount"

@@ -1,9 +1,11 @@
 "use client";
 
 import { useMemo, useOptimistic, useState, useTransition } from "react";
+import { Settings2 } from "lucide-react";
 import { reorderItems } from "@/app/actions/planner";
 import { ChatWidget } from "@/components/chat-widget";
 import { DashboardSummary } from "@/components/planner-dashboard-parts/dashboard-summary";
+import { CategoryManager } from "@/components/planner-dashboard-parts/category-manager";
 import { PlannerSection } from "@/components/planner-dashboard-parts/planner-section";
 import {
   budgetConfig,
@@ -13,6 +15,7 @@ import {
 import { buildForecast, buildPlannerSummary, formatCurrency } from "@/lib/finance";
 import type {
   DashboardBudgetItem,
+  DashboardCategory,
   DashboardDebtItem,
   DashboardProfile,
   DashboardWishlistItem,
@@ -24,6 +27,7 @@ type DashboardProps = {
   budgetItems: DashboardBudgetItem[];
   debtItems: DashboardDebtItem[];
   wishlistItems: DashboardWishlistItem[];
+  categories: DashboardCategory[];
   budgetCategories: string[];
 };
 
@@ -92,9 +96,11 @@ export function PlannerDashboard({
   budgetItems,
   debtItems,
   wishlistItems,
+  categories,
   budgetCategories
 }: DashboardProps) {
   const [activeTab, setActiveTab] = useState<PlannerKind>("budget");
+  const [isManagingCategories, setIsManagingCategories] = useState(false);
   const [, startTransition] = useTransition();
 
   const [budgetView, setBudgetOrder] = useOptimistic(
@@ -134,8 +140,12 @@ export function PlannerDashboard({
   );
 
   const sectionContext = useMemo(
-    () => ({ budgetCategories, monthlySavings: forecast.monthlySavings }),
-    [budgetCategories, forecast.monthlySavings]
+    () => ({
+      categories,
+      onManageCategories: () => setIsManagingCategories(true),
+      monthlySavings: forecast.monthlySavings
+    }),
+    [categories, forecast.monthlySavings]
   );
 
   function commitReorder<T extends { id: string }>(
@@ -215,6 +225,16 @@ export function PlannerDashboard({
               onItemsChange={(next) => commitReorder("budget", setBudgetOrder, next)}
               forecastById={null}
               sectionContext={sectionContext}
+              headerRight={
+                <button
+                  type="button"
+                  onClick={() => setIsManagingCategories(true)}
+                  className="focus-ring inline-flex items-center gap-1.5 rounded-md border border-line px-2.5 py-1.5 text-xs font-medium text-ink-500 hover:bg-canvas hover:text-ink-800"
+                >
+                  <Settings2 className="size-3.5" aria-hidden />
+                  Categories
+                </button>
+              }
               footerNote={
                 <SavingsFooter
                   salary={profile.monthly_salary}
@@ -254,6 +274,9 @@ export function PlannerDashboard({
       </div>
 
       <ChatWidget activeTab={activeTab} budgetCategories={budgetCategories} />
+      {isManagingCategories ? (
+        <CategoryManager categories={categories} onClose={() => setIsManagingCategories(false)} />
+      ) : null}
     </div>
   );
 }

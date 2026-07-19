@@ -8,6 +8,7 @@ import {
   budgetCategorySchema,
   budgetItemPatchSchema,
   budgetItemSchema,
+  categorySchema,
   debtItemPatchSchema,
   debtItemSchema,
   plannerKindSchema,
@@ -70,6 +71,13 @@ async function nextSortOrder(supabase: Supabase, table: AnyTable, userId: string
   return (data?.sort_order ?? -1) + 1;
 }
 
+async function ensureCategory(supabase: Supabase, name: string) {
+  const { data, error } = await supabase.rpc("ensure_category", { p_name: name });
+  throwIfError(error);
+  if (!data) throw new Error("Could not create category.");
+  return data;
+}
+
 export async function updateSalary(formData: FormData) {
   const { supabase, user } = await requireUser();
   const parsed = parseOrThrow(profileSchema, readFields(formData, ["monthly_salary"]));
@@ -91,11 +99,19 @@ export async function createBudgetItem(formData: FormData) {
     budgetItemSchema,
     readFields(formData, ["name", "emoji", "amount", "category", "details"] as const)
   );
+  const category_id = await ensureCategory(supabase, parsed.category);
+  const budgetFields = {
+    name: parsed.name,
+    emoji: parsed.emoji,
+    amount: parsed.amount,
+    details: parsed.details
+  };
   const sort_order = await nextSortOrder(supabase, "budget_items", user.id);
   const { error } = await supabase
     .from("budget_items")
     .insert({
-      ...parsed,
+      ...budgetFields,
+      category_id,
       emoji: parsed.emoji ?? randomEmoji("budget"),
       user_id: user.id,
       sort_order
@@ -108,10 +124,11 @@ export async function updateBudgetItemCategory(id: string, category: string) {
   const { supabase, user } = await requireUser();
   const itemId = parseOrThrow(uuidSchema, id);
   const parsed = parseOrThrow(budgetCategorySchema, { category });
+  const category_id = await ensureCategory(supabase, parsed.category);
 
   const { error } = await supabase
     .from("budget_items")
-    .update({ category: parsed.category })
+    .update({ category_id })
     .eq("id", itemId)
     .eq("user_id", user.id);
   throwIfError(error);
@@ -123,10 +140,14 @@ export async function updateBudgetItem(id: string, patch: unknown) {
   const itemId = parseOrThrow(uuidSchema, id);
   const parsed = parseOrThrow(budgetItemPatchSchema, patch);
   if (Object.keys(parsed).length === 0) return;
+  const { category, ...budgetPatch } = parsed;
+  const categoryPatch = category
+    ? { category_id: await ensureCategory(supabase, category) }
+    : {};
 
   const { error } = await supabase
     .from("budget_items")
-    .update(parsed)
+    .update({ ...budgetPatch, ...categoryPatch })
     .eq("id", itemId)
     .eq("user_id", user.id);
   throwIfError(error);
@@ -219,15 +240,24 @@ export async function createPlannerItems(
   let sortOrder = await nextSortOrder(supabase, TABLE_BY_KIND[parsedKind], user.id);
 
   if (parsedKind === "budget") {
-    const rows = slice.map((item) => {
+    const rows = [];
+    for (const item of slice) {
       const parsed = parseOrThrow(budgetItemSchema, item);
-      return {
-        ...parsed,
+      const category_id = await ensureCategory(supabase, parsed.category);
+      const budgetFields = {
+        name: parsed.name,
+        emoji: parsed.emoji,
+        amount: parsed.amount,
+        details: parsed.details
+      };
+      rows.push({
+        ...budgetFields,
+        category_id,
         emoji: parsed.emoji ?? randomEmoji("budget"),
         user_id: user.id,
         sort_order: sortOrder++
-      };
-    });
+      });
+    }
     throwIfError((await supabase.from("budget_items").insert(rows)).error);
   } else if (parsedKind === "debt") {
     const rows = slice.map((item) => {
@@ -255,6 +285,64 @@ export async function createPlannerItems(
 
   revalidatePath("/");
   return { inserted: slice.length };
+}
+
+export async function createCategory(input: unknown) {
+  const { supabase, user } = await requireUser();
+  const parsed = parseOrThrow(categorySchema, input);
+  const { data: last } = await supabase
+    .from("categories")
+    .select("sort_order")
+    .eq("user_id", user.id)
+    .order("sort_order", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const { error } = await supabase.from("categories").insert({
+    ...parsed,
+    user_id: user.id,
+    sort_order: (last?.sort_order ?? -1) + 1
+  });
+  throwIfError(error);
+  revalidatePath("/");
+}
+
+export async function updateCategory(id: string, input: unknown) {
+  const { supabase, user } = await requireUser();
+  const categoryId = parseOrThrow(uuidSchema, id);
+  const parsed = parseOrThrow(categorySchema, input);
+  const { data: current, error: readError } = await supabase
+    .from("categories")
+    .select("name")
+    .eq("id", categoryId)
+    .eq("user_id", user.id)
+    .single();
+  throwIfError(readError);
+  if (!current) throw new Error("Category not found.");
+  if (current.name.toLowerCase() === "other" && parsed.name.toLowerCase() !== "other") {
+    throw new Error("The Other category cannot be renamed.");
+  }
+  const { error } = await supabase
+    .from("categories")
+    .update(parsed)
+    .eq("id", categoryId)
+    .eq("user_id", user.id);
+  throwIfError(error);
+  revalidatePath("/");
+}
+
+export async function deleteCategory(id: string) {
+  const { supabase } = await requireUser();
+  const categoryId = parseOrThrow(uuidSchema, id);
+  throwIfError((await supabase.rpc("delete_category", { p_category_id: categoryId })).error);
+  revalidatePath("/");
+}
+
+export async function reorderCategories(ids: string[]) {
+  const { supabase } = await requireUser();
+  const parsedIds = parseOrThrow(z.array(uuidSchema), ids);
+  if (parsedIds.length === 0) return;
+  throwIfError((await supabase.rpc("reorder_categories", { p_ids: parsedIds })).error);
+  revalidatePath("/");
 }
 
 export async function deleteItem(kind: PlannerKind, id: string) {

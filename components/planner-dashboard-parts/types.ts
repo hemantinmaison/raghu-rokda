@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import type { DashboardCategory } from "@/lib/types";
 
 export type TableHeader = {
   label: string;
@@ -10,7 +11,8 @@ export type TableHeader = {
 export type CreateAction = (formData: FormData) => Promise<void>;
 
 export type SectionConfigContext = {
-  budgetCategories: string[];
+  categories: DashboardCategory[];
+  onManageCategories: () => void;
   /** Current monthly savings (salary − budget) — used to prefill calculators. */
   monthlySavings: number;
 };
